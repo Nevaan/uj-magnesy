@@ -51,10 +51,14 @@ public class MCSimulation implements Simulation {
         this.TkB  = TkB;
     }
 
+    double E;
+
     @Override
     public void executeMCSteps(int steps) {
 
-        this.latticeParameters.setTotalEnergy(countTotalEnergy(this.latticeParameters.lattice()));
+        E = countTotalEnergy(this.latticeParameters.lattice());
+
+        this.latticeParameters.setTotalEnergy(E);
         this.latticeParameters.setOrderParameter(countOrderParameter(this.latticeParameters.lattice()));
         this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(this.latticeParameters.lattice()));
 
@@ -62,6 +66,10 @@ public class MCSimulation implements Simulation {
             singleStep();
         }
 
+        System.out.println("E: " + E);
+        double afterSim = countTotalEnergy(this.latticeParameters.lattice());
+        System.out.println("AfterSim E: " + afterSim);
+        System.out.println("Equal? " + (E == afterSim));
     }
 
     @Override
@@ -91,7 +99,8 @@ public class MCSimulation implements Simulation {
 
         currentState[randomX][randomY] += change;
 
-        double deltaE = countTotalEnergy(currentState) - countTotalEnergy(this.latticeParameters.lattice());
+        //double deltaE = countTotalEnergy(currentState) - countTotalEnergy(this.latticeParameters.lattice());
+        double deltaE = countEi(currentState, randomX, randomY) - countEi(this.latticeParameters.lattice(), randomX, randomY);
         double P = this.probabilityAlgorithm.getProbability(deltaE, TkB);
         double R = new Random().nextDouble();
 
@@ -100,6 +109,7 @@ public class MCSimulation implements Simulation {
             this.latticeParameters.setTotalEnergy(countTotalEnergy(currentState));
             this.latticeParameters.setOrderParameter(countOrderParameter(currentState));
             this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(currentState));
+            E += deltaE;
         }
 
 
@@ -145,7 +155,15 @@ public class MCSimulation implements Simulation {
             for (int y = 0; y < lattice[x].length; y++) {
                 Etot += countEi(lattice, x, y);
             }
+        }
 
+        Etot *= 0.5;
+
+        for (int x = 0; x < lattice.length; x++) {
+
+            for (int y = 0; y < lattice[x].length; y++) {
+                Etot -= parameters.get(0) * Math.cos(countAngle(lattice[x][y]) - this.externalFieldAngle);
+            }
         }
 
         return Etot;
@@ -170,9 +188,6 @@ public class MCSimulation implements Simulation {
                 Ei -= Cn * Math.cos(countAngle(magnet) - countAngle(nLevelNeighbor));
             }
         }
-
-        Ei *= 0.5;
-        Ei -= parameters.get(0) * Math.cos(countAngle(magnet) - this.externalFieldAngle);
 
         return Ei;
     }
