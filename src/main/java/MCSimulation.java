@@ -95,7 +95,7 @@ public class MCSimulation implements Simulation {
         double P = this.probabilityAlgorithm.getProbability(deltaE, TkB);
         double R = new Random().nextDouble();
 
-        if(R < P) {
+        if (R < P) {
             this.latticeParameters.setLattice(deepCopyLattice(currentState));
             this.latticeParameters.setTotalEnergy(countTotalEnergy(currentState));
             this.latticeParameters.setOrderParameter(countOrderParameter(currentState));
@@ -143,33 +143,40 @@ public class MCSimulation implements Simulation {
         for (int x = 0; x < lattice.length; x++) {
 
             for (int y = 0; y < lattice[x].length; y++) {
-
-                Map<Integer, List<Point>> neighbours = makeNeighborsCalculation(x,y,lattice);
-                List<Double> neighborParams = parameters.subList(1, parameters.size());
-                ListIterator<Double> iterator = neighborParams.listIterator();
-                double Ei = 0.0;
-
-                while (iterator.hasNext()) {
-                    int idx = iterator.nextIndex();
-                    Double Cn = iterator.next();
-
-                    List<Point> nLevelNeighbors = neighbours.get(idx + 1);
-
-                    for(Point p : nLevelNeighbors) {
-                        int nLevelNeighbor = lattice[p.getX()][p.getY()];
-                        Ei -= Cn * Math.cos(countAngle(lattice[x][y]) - countAngle(nLevelNeighbor));
-                    }
-                }
-                Ei *= 0.5;
-                Ei -= parameters.get(0) * Math.cos(countAngle(lattice[x][y]) - this.externalFieldAngle);
-                Etot += Ei;
+                Etot += countEi(lattice, x, y);
             }
 
         }
 
         return Etot;
-
     }
+
+    public double countEi(int[][] lattice, int x, int y) {
+        double Ei = 0;
+
+        int magnet = lattice[x][y];
+
+        Map<Integer, List<Point>> neighbours = makeNeighborsCalculation(x,y,lattice);
+        List<Double> neighborParams = parameters.subList(1, parameters.size());
+        ListIterator<Double> iterator = neighborParams.listIterator();
+
+        while (iterator.hasNext()) {
+            int idx = iterator.nextIndex();
+            Double Cn = iterator.next();
+            List<Point> nLevelNeighbors = neighbours.get(idx + 1);
+
+            for(Point p : nLevelNeighbors) {
+                int nLevelNeighbor = lattice[p.getX()][p.getY()];
+                Ei -= Cn * Math.cos(countAngle(magnet) - countAngle(nLevelNeighbor));
+            }
+        }
+
+        Ei *= 0.5;
+        Ei -= parameters.get(0) * Math.cos(countAngle(magnet) - this.externalFieldAngle);
+
+        return Ei;
+    }
+
 
     // todo: private
     public Map<Integer, List<Point>> makeNeighborsCalculation(int x, int y, int[][] lattice) {

@@ -40,7 +40,7 @@ class MCSimulationTest extends Specification {
         underTest.setLattice(lattice, 2)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
         underTest.setProbabilityFormula(Simulation.ProbabilityFormula.GLAUBER)
-        underTest.setTkB(1.25)
+        underTest.setTkB(2.5)
         underTest.executeMCSteps(1000)
         then:
         println ((underTest.getState().totalEnergy()) / (20*20))
