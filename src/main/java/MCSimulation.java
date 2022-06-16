@@ -24,7 +24,7 @@ public class MCSimulation implements Simulation {
 
     @Override
     public void setLattice(int[][] lattice, int states) {
-        this.latticeParameters.setLattice(Arrays.copyOf(lattice, lattice.length));
+        this.latticeParameters.setLattice(deepCopyLattice(lattice));
         this.states = states;
     }
 
@@ -71,7 +71,7 @@ public class MCSimulation implements Simulation {
 
 
     public void singleStep() {
-        int[][] currentState = Arrays.copyOf(this.latticeParameters.lattice(), this.latticeParameters.lattice().length);
+        int[][] currentState = deepCopyLattice(this.latticeParameters.lattice());
         int maxX = currentState.length;
         int maxY = currentState[0].length;
 
@@ -96,13 +96,34 @@ public class MCSimulation implements Simulation {
         double R = new Random().nextDouble();
 
         if(R < P) {
-            this.latticeParameters.setLattice(Arrays.copyOf(currentState, currentState.length));
+            this.latticeParameters.setLattice(deepCopyLattice(currentState));
             this.latticeParameters.setTotalEnergy(countTotalEnergy(currentState));
             this.latticeParameters.setOrderParameter(countOrderParameter(currentState));
             this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(currentState));
         }
 
 
+    }
+
+    // todo: remove
+    private void printLattice(int[][] x) {
+//        for (int i = 0; i < x.length; i++) {
+//            System.out.print("\t\t");
+//            for (int j = 0; j < x[i].length; j++) {
+//                System.out.print(x[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
+//        System.out.println();
+    }
+    
+    private int[][] deepCopyLattice(int[][] original) {
+        int[][] result = new int[original.length][];
+        for (int i = 0; i < original.length; i++) {
+            result[i] = Arrays.copyOf(original[i], original[i].length);
+        }
+
+        return result;
     }
 
     private int randomInt(int max) {
@@ -116,7 +137,38 @@ public class MCSimulation implements Simulation {
     }
 
     public double countTotalEnergy(int[][] lattice) {
-        return -0.5 * neighborEnergy(lattice) - countExternalEnergy(lattice);
+
+        double Etot = 0.0;
+
+        for (int x = 0; x < lattice.length; x++) {
+
+            for (int y = 0; y < lattice[x].length; y++) {
+
+                Map<Integer, List<Point>> neighbours = makeNeighborsCalculation(x,y,lattice);
+                List<Double> neighborParams = parameters.subList(1, parameters.size());
+                ListIterator<Double> iterator = neighborParams.listIterator();
+                double Ei = 0.0;
+
+                while (iterator.hasNext()) {
+                    int idx = iterator.nextIndex();
+                    Double Cn = iterator.next();
+
+                    List<Point> nLevelNeighbors = neighbours.get(idx + 1);
+
+                    for(Point p : nLevelNeighbors) {
+                        int nLevelNeighbor = lattice[p.getX()][p.getY()];
+                        Ei -= Cn * Math.cos(countAngle(lattice[x][y]) - countAngle(nLevelNeighbor));
+                    }
+                }
+                Ei *= 0.5;
+                Ei -= parameters.get(0) * Math.cos(countAngle(lattice[x][y]) - this.externalFieldAngle);
+                Etot += Ei;
+            }
+
+        }
+
+        return Etot;
+
     }
 
     // todo: private
@@ -203,56 +255,6 @@ public class MCSimulation implements Simulation {
         }
 
         return y;
-    }
-
-
-    //todo: private method
-    // neighbour energy
-    public double neighborEnergy(int[][] lattice) {
-        double neighborEnergy = 0.0;
-
-        for (int i = 0; i < lattice.length; i++) {
-
-            int[] innerLattice = lattice[i];
-
-            for (int j = 0; j < innerLattice.length; j++) {
-
-                int consideredMagnet = innerLattice[j];
-
-                Map<Integer, List<Point>> neighbors =  makeNeighborsCalculation(i,j, lattice);
-                List<Double> neighborParams = parameters.subList(1, parameters.size());
-                ListIterator<Double> iterator = neighborParams.listIterator();
-                while(iterator.hasNext()) {
-                    int idx = iterator.nextIndex();
-                    Double param = iterator.next();
-
-                    List<Point> nLevelNeighbors = neighbors.get(idx + 1);
-                    for(Point p : nLevelNeighbors) {
-                        int nLevelNeighbor = lattice[p.getX()][p.getY()];
-                        neighborEnergy += param * Math.cos(countAngle(consideredMagnet) - countAngle(nLevelNeighbor));
-                    }
-                }
-
-            }
-        }
-
-        return neighborEnergy;
-    }
-
-
-    //todo: private method
-    // Ce * sum(alfaI - alfaE)
-    public double countExternalEnergy(int[][] lattice) {
-        double cosinusSum = 0.0;
-        for (int i = 0; i < lattice.length; i++) {
-            int[] innerLattice = lattice[i];
-
-            for (int j = 0; j < innerLattice.length; j++) {
-                cosinusSum += Math.cos(countAngle(innerLattice[j]) - this.externalFieldAngle);
-            }
-
-        }
-        return this.parameters.get(0) * cosinusSum;
     }
 
     public double countOrderParameter(int[][] lattice) {

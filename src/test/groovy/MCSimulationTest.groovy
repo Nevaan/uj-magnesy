@@ -26,6 +26,10 @@ class MCSimulationTest extends Specification {
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+//            [2,2,2,2],
+//            [2,2,2,2],
+//            [2,2,2,2],
+//            [2,2,2,2]
     ] as int[][]
 
     def underTest = new MCSimulation()
@@ -35,9 +39,9 @@ class MCSimulationTest extends Specification {
         when:
         underTest.setLattice(lattice, 2)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
-        underTest.setProbabilityFormula(Simulation.ProbabilityFormula.METROPOLIS)
-        underTest.setTkB(2.5)
-        underTest.executeMCSteps(1000000)
+        underTest.setProbabilityFormula(Simulation.ProbabilityFormula.GLAUBER)
+        underTest.setTkB(1.25)
+        underTest.executeMCSteps(1000)
         then:
         println ((underTest.getState().totalEnergy()) / (20*20))
     }
