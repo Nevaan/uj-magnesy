@@ -17,6 +17,10 @@ public class MCSimulation implements Simulation {
     private double TkB;
     private int states;
 
+    private int numberOfMagnetsToChange = 1;
+    private double acceptedChanges = 0;
+    private double changeAttempts = 0;
+
     public MCSimulation() {
         this.latticeParameters = new LatticeParametersImpl();
 
@@ -79,6 +83,9 @@ public class MCSimulation implements Simulation {
 
 
     public void singleStep() {
+
+        changeAttempts += 1;
+
         int[][] currentState = deepCopyLattice(this.latticeParameters.lattice());
         int maxX = currentState.length;
         int maxY = currentState[0].length;
@@ -88,23 +95,32 @@ public class MCSimulation implements Simulation {
 
         int currentValue = currentState[randomX][randomY];
 
-        int change = 0;
-        if(currentValue == 0) {
-            change = 1;
-        } else if (currentValue == states - 1) {
-            change = -1;
-        } else {
-            change = randomInt(2) == 0 ? -1 : 1;
+        if ((acceptedChanges / changeAttempts) > 0.5) {
+            numberOfMagnetsToChange++;
+        } else if ((acceptedChanges / changeAttempts) < 0.4 && numberOfMagnetsToChange > 1) {
+            numberOfMagnetsToChange--;
         }
 
-        currentState[randomX][randomY] += change;
+        for (int i = 0; i < numberOfMagnetsToChange; i++) {
+            int change = 0;
+            if(currentValue == 0) {
+                change = 1;
+            } else if (currentValue == states - 1) {
+                change = -1;
+            } else {
+                change = randomInt(2) == 0 ? -1 : 1;
+            }
 
-        //double deltaE = countTotalEnergy(currentState) - countTotalEnergy(this.latticeParameters.lattice());
-        double deltaE = countEi(currentState, randomX, randomY) - countEi(this.latticeParameters.lattice(), randomX, randomY);
+            currentState[randomX][randomY] += change;
+        }
+
+        double deltaE = countTotalEnergy(currentState) - countTotalEnergy(this.latticeParameters.lattice());
+        //double deltaE = countEi(currentState, randomX, randomY) - countEi(this.latticeParameters.lattice(), randomX, randomY);
         double P = this.probabilityAlgorithm.getProbability(deltaE, TkB);
         double R = new Random().nextDouble();
 
         if (R < P) {
+            acceptedChanges += 1;
             this.latticeParameters.setLattice(deepCopyLattice(currentState));
             this.latticeParameters.setTotalEnergy(countTotalEnergy(currentState));
             this.latticeParameters.setOrderParameter(countOrderParameter(currentState));
