@@ -6,6 +6,6 @@ public class Glauber implements ProbabilityAlgorithm {
         //todo: superclass
         double kB = 1.380649 * Math.pow(10, -23);
 
-        return Math.exp(-deltaE * (kB * T)) / ( 1 + Math.exp( -deltaE / (kB * T) ) );
+        return Math.exp(-deltaE / (kB * T)) / ( 1 + Math.exp( -deltaE / (kB * T) ) );
     }
 }
