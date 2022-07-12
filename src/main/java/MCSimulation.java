@@ -28,8 +28,8 @@ public class MCSimulation implements Simulation {
 
     @Override
     public void setLattice(int[][] lattice, int states) {
-        this.latticeParameters.setLattice(deepCopyLattice(lattice));
         this.states = states;
+        this.latticeParameters.setLattice(deepCopyLattice(lattice));
     }
 
     @Override
@@ -90,18 +90,26 @@ public class MCSimulation implements Simulation {
         int maxX = currentState.length;
         int maxY = currentState[0].length;
 
-        int randomX = randomInt(maxX);
-        int randomY = randomInt(maxY);
 
-        int currentValue = currentState[randomX][randomY];
 
-        if ((acceptedChanges / changeAttempts) > 0.5) {
+
+
+        if ((acceptedChanges / changeAttempts) > 0.5 && numberOfMagnetsToChange < (maxX * maxY)) {
             numberOfMagnetsToChange++;
         } else if ((acceptedChanges / changeAttempts) < 0.4 && numberOfMagnetsToChange > 1) {
             numberOfMagnetsToChange--;
         }
 
-        for (int i = 0; i < numberOfMagnetsToChange; i++) {
+        Set<Point> pointsToChange = new HashSet<>();
+
+        while (pointsToChange.size() != numberOfMagnetsToChange) {
+            int randomX = randomInt(maxX);
+            int randomY = randomInt(maxY);
+            pointsToChange.add(new Point(randomX, randomY));
+        }
+
+        for (Point changePoint : pointsToChange) {
+            int currentValue = currentState[changePoint.getX()][changePoint.getY()];
             int change = 0;
             if(currentValue == 0) {
                 change = 1;
@@ -111,7 +119,7 @@ public class MCSimulation implements Simulation {
                 change = randomInt(2) == 0 ? -1 : 1;
             }
 
-            currentState[randomX][randomY] += change;
+            currentState[changePoint.getX()][changePoint.getY()] += change;
         }
 
         double deltaE = countTotalEnergy(currentState) - countTotalEnergy(this.latticeParameters.lattice());
@@ -142,14 +150,30 @@ public class MCSimulation implements Simulation {
 //        }
 //        System.out.println();
     }
-    
+
     private int[][] deepCopyLattice(int[][] original) {
         int[][] result = new int[original.length][];
         for (int i = 0; i < original.length; i++) {
             result[i] = Arrays.copyOf(original[i], original[i].length);
         }
 
+        latticeCheck(result);
+
         return result;
+    }
+
+
+    //todo: remove
+    private void latticeCheck(int[][] lattice) {
+        for (int x = 0; x < lattice.length; x++) {
+
+            for (int y = 0; y < lattice[x].length; y++) {
+                if (lattice[x][y] < 0 || lattice[x][y] > states - 1) {
+                    throw new RuntimeException("not in range: " + lattice[x][y]);
+                }
+            }
+        }
+
     }
 
     private int randomInt(int max) {

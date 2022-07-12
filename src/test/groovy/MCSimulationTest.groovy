@@ -87,13 +87,13 @@ class MCSimulationTest extends Specification {
             underTest.setProbabilityFormula(Simulation.ProbabilityFormula.GLAUBER)
             underTest.setTkB(5.0)
 
-            def TIME = 300000
+            def TIME = 3 * 300000
             int STEPS = 1000000
             int DIV = 20
 
             long endTime = System.currentTimeMillis() + TIME
             do {
-                underTest.executeMCSteps(50_000)
+                underTest.executeMCSteps(10_000)
             } while (System.currentTimeMillis() < endTime)
         then:
         println ((underTest.getState().totalEnergy()) / (20*20))
