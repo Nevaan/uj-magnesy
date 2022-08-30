@@ -1,0 +1,35 @@
+Test results:
+TkB = 0.0 (-2.0 expected)
+	 Result: -2.0 (500000 steps)
+
+	 Average: -2.0
+
+TkB = 1.0 (-1.4 expected)
+	 Result: -1.4950196636643103 (150000 steps)
+
+	 Average: -1.4950196636643103
+
+TkB = 1.5 (-1.0 expected)
+	 Result: -1.104742039444641 (150000 steps)
+
+	 Average: -1.104742039444641
+
+TkB = 2.0 (-0.7 expected)
+	 Result: -1.0871931290221937 (250000 steps)
+
+	 Average: -1.0871931290221937
+
+TkB = 3.0 (-0.5 expected)
+	 Result: -0.6905987948633049 (150000 steps)
+
+	 Average: -0.6905987948633049
+
+TkB = 5.0 (-0.38 expected)
+	 Result: -0.2989160583226448 (150000 steps)
+
+	 Average: -0.2989160583226448
+
+
+Time in ms: 373246
+Time in s: 373.246
+Time in m: 6.2207666667

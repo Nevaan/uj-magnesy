@@ -1,5 +1,6 @@
 import main.Simulation
 import spock.lang.Ignore
+import spock.lang.Shared
 import spock.lang.Specification
 
 @Ignore
@@ -14,17 +15,25 @@ class ParallelResultCheck extends Specification {
 
     static int REPEATS = 1
 
+    @Shared
+    def static resultsMap = [:]
 
     def setupSpec() {
         start = System.currentTimeMillis()
-        println "starting... ${start}"
     }
     def cleanupSpec() {
         end = System.currentTimeMillis()
-        println "ending...${end}"
-        println "Time in ms: ${end - start}"
-        println "Time in s: ${(end - start)/1000}"
-        println "Time in m: ${((end - start)/1000)/60}"
+
+        resultsMap = resultsMap.sort()
+
+        def resultAsString = []
+
+        resultsMap.each {it -> resultAsString << it.value}
+
+        def filename = "results.txt"
+        File file = new File(filename)
+        file.write("Test results:" + resultAsString.join("\n") + "\n\n\n" + "Time in ms: ${end - start}\n" + "Time in s: ${(end - start)/1000}\n" + "Time in m: ${((end - start) / 1000) / 60}\n")
+
     }
 
 
@@ -35,7 +44,7 @@ class ParallelResultCheck extends Specification {
         underTest.setTkB(T)
     }
 
-    double oneSimulation(MCSimulation sim, String tkB) {
+    Tuple2<Integer, Double> oneSimulation(MCSimulation sim, String tkB) {
         def stepsTaken = 0
         long endTime = System.currentTimeMillis() + TIME
         do {
@@ -43,10 +52,21 @@ class ParallelResultCheck extends Specification {
             stepsTaken += 1
         } while (System.currentTimeMillis() < endTime)
 
-        println "[${tkB}] Steps taken: ${stepsTaken * STEPS}"
-        return ((sim.getState().totalEnergy()) / (DIV*DIV))
+        return new Tuple(stepsTaken * STEPS,((sim.getState().totalEnergy()) / (DIV*DIV)))
     }
 
+    def handleResults(double tkb, double expected, List<Tuple2<Integer, Double>> results) {
+        def executionResults = results.collect {it[1]}
+
+        def averageResult = executionResults.value.sum() / REPEATS
+
+        def header = "\nTkB = ${tkb} (${expected} expected)\n"
+        def resultsAsString = results.collect {it -> "\t Result: ${it[1]} (${it[0]} steps)"}.join("\n")
+        def averageAsString = "\n\n\t Average: ${averageResult}"
+
+        resultsMap[tkb] = "${header}${resultsAsString}${averageAsString}"
+        return true
+    }
 
     def "TkB = 0.0"() {
         given:
@@ -82,7 +102,7 @@ class ParallelResultCheck extends Specification {
             results << oneSimulation(underTest, "0.0")
         }
         then:
-        println "Result (0.0): ${results.value.sum() / REPEATS}"
+        handleResults(0.0, -2.0, results)
     }
 
 
@@ -120,7 +140,7 @@ class ParallelResultCheck extends Specification {
             results << oneSimulation(underTest, "1.0")
         }
         then:
-        println "Result (1.0): ${results.value.sum() / REPEATS}"
+        handleResults(1.0, -1.4, results)
     }
 
     def "TkB = 1.5"() {
@@ -157,7 +177,7 @@ class ParallelResultCheck extends Specification {
             results << oneSimulation(underTest, "1.5")
         }
         then:
-        println "Result (1.5): ${results.value.sum() / REPEATS}"
+        handleResults(1.5, -1.0, results)
     }
 
     def "TkB = 2.0"() {
@@ -194,7 +214,7 @@ class ParallelResultCheck extends Specification {
             results << oneSimulation(underTest, "2.0")
         }
         then:
-        println "Result (2.0): ${results.value.sum() / REPEATS}"
+        handleResults(2.0, -0.7, results)
     }
 
 
@@ -232,7 +252,7 @@ class ParallelResultCheck extends Specification {
             results << oneSimulation(underTest, "3.0")
         }
         then:
-        println "Result (3.0): ${results.value.sum() / REPEATS}"
+        handleResults(3.0, -0.5, results)
     }
 
     def "TkB = 5.0"() {
@@ -269,7 +289,7 @@ class ParallelResultCheck extends Specification {
             results << oneSimulation(underTest, "5.0")
         }
         then:
-        println "Result (5.0): ${results.value.sum() / REPEATS}"
+        handleResults(5.0,-0.38,  results)
     }
 
 }

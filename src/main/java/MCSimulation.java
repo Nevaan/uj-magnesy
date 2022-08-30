@@ -75,10 +75,10 @@ public class MCSimulation implements Simulation {
             singleStep();
         }
 
-        System.out.println("E: " + E);
-        double afterSim = countTotalEnergy(this.latticeParameters.lattice());
-        System.out.println("AfterSim E: " + afterSim);
-        System.out.println("Equal? " + (E == afterSim));
+//        System.out.println("E: " + E);
+//        double afterSim = countTotalEnergy(this.latticeParameters.lattice());
+//        System.out.println("AfterSim E: " + afterSim);
+//        System.out.println("Equal? " + (E == afterSim));
     }
 
     @Override
