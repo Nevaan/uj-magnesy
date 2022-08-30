@@ -29,10 +29,10 @@ public class LatticeParametersImpl implements Simulation.LatticeParameters {
         return lattice;
     }
 
-
     public void setLattice(int[][] lattice) {
         this.lattice = lattice;
     }
+
     public void setTotalEnergy(double totalEnergy) {
         this.totalEnergy = totalEnergy;
     }
@@ -44,4 +44,8 @@ public class LatticeParametersImpl implements Simulation.LatticeParameters {
     public void setNearestNeighbourOrder(double nearestNeighbourOrder) {
         this.nearestNeighbourOrder = nearestNeighbourOrder;
     }
+
+
+
+
 }

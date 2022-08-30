@@ -1,19 +1,19 @@
 import main.Simulation
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
-@Ignore
+
 class ParallelResultCheck extends Specification {
 
     def underTest = new MCSimulation()
-    static long start, end;
+    static long start, end
 
-    static def TIME = 300000
-    static int STEPS = 50_000
+    static def TIME = 300000 / 5
+    static int STEPS = 100
     static int DIV = 20
 
     static int REPEATS = 1
-
 
     def setupSpec() {
         start = System.currentTimeMillis()
@@ -85,7 +85,6 @@ class ParallelResultCheck extends Specification {
         println "Result (0.0): ${results.value.sum() / REPEATS}"
     }
 
-
     def "TkB = 1.0"() {
         given:
         def lattice = [
@@ -123,6 +122,7 @@ class ParallelResultCheck extends Specification {
         println "Result (1.0): ${results.value.sum() / REPEATS}"
     }
 
+    @IgnoreRest
     def "TkB = 1.5"() {
         given:
         def lattice = [
