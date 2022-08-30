@@ -1,4 +1,6 @@
 import main.Simulation;
+import neighbor.Level1NeighborCalculation;
+import neighbor.NeighborCalculation;
 import parameters.LatticeParametersImpl;
 import point.Point;
 import probability.Glauber;
@@ -21,6 +23,8 @@ public class MCSimulation implements Simulation {
     private double acceptedChanges = 0;
     private double changeAttempts = 0;
 
+    private NeighborCalculation neighborCalculation;
+
     public MCSimulation() {
         this.latticeParameters = new LatticeParametersImpl();
 
@@ -30,6 +34,7 @@ public class MCSimulation implements Simulation {
     public void setLattice(int[][] lattice, int states) {
         this.states = states;
         this.latticeParameters.setLattice(deepCopyLattice(lattice));
+        this.neighborCalculation = new Level1NeighborCalculation(lattice.length, lattice[0].length);
     }
 
     @Override
@@ -89,10 +94,6 @@ public class MCSimulation implements Simulation {
         int[][] currentState = deepCopyLattice(this.latticeParameters.lattice());
         int maxX = currentState.length;
         int maxY = currentState[0].length;
-
-
-
-
 
         if ((acceptedChanges / changeAttempts) > 0.5 && numberOfMagnetsToChange < (maxX * maxY)) {
             numberOfMagnetsToChange++;
@@ -214,7 +215,7 @@ public class MCSimulation implements Simulation {
 
         int magnet = lattice[x][y];
 
-        Map<Integer, List<Point>> neighbours = makeNeighborsCalculation(x,y,lattice);
+        Map<Integer, List<Point>> neighbours = this.neighborCalculation.addNeighbors(new HashMap<>(), x,y);
         List<Double> neighborParams = parameters.subList(1, parameters.size());
         ListIterator<Double> iterator = neighborParams.listIterator();
 
@@ -230,68 +231,6 @@ public class MCSimulation implements Simulation {
         }
 
         return Ei;
-    }
-
-
-    // todo: private
-    public Map<Integer, List<Point>> makeNeighborsCalculation(int x, int y, int[][] lattice) {
-
-        Map result = new HashMap();
-
-        List<Point> levelOneCoordinates = new ArrayList<>();
-        levelOneCoordinates.add(new Point(checkX(x, lattice.length), checkY(y-1, lattice[0].length)));
-        levelOneCoordinates.add(new Point(checkX(x, lattice.length), checkY(y+1, lattice[0].length)));
-        levelOneCoordinates.add(new Point(checkX(x+1, lattice.length), checkY(y, lattice[0].length)));
-        levelOneCoordinates.add(new Point(checkX(x-1, lattice.length), checkY(y, lattice[0].length)));
-
-        result.put(1, levelOneCoordinates);
-
-
-        List<Point> levelTwoCoordinates = new ArrayList<>();
-
-
-        levelTwoCoordinates.add(new Point(checkX(x-1, lattice.length), checkY(y+1, lattice[0].length)));
-        levelTwoCoordinates.add(new Point(checkX(x+1, lattice.length), checkY(y+1, lattice[0].length)));
-        levelTwoCoordinates.add(new Point(checkX(x-1, lattice.length), checkY(y-1, lattice[0].length)));
-        levelTwoCoordinates.add(new Point(checkX(x+1, lattice.length), checkY(y-1, lattice[0].length)));
-
-        result.put(2, levelTwoCoordinates);
-
-        List<Point> levelThreeCoordinates = new ArrayList<>();
-
-
-        levelThreeCoordinates.add(new Point(checkX(x, lattice.length), checkY(y+2, lattice[0].length)));
-        levelThreeCoordinates.add(new Point(checkX(x, lattice.length), checkY(y-2, lattice[0].length)));
-        levelThreeCoordinates.add(new Point(checkX(x-2, lattice.length), checkY(y, lattice[0].length)));
-        levelThreeCoordinates.add(new Point(checkX(x+2, lattice.length), checkY(y, lattice[0].length)));
-
-        result.put(3, levelThreeCoordinates);
-
-        List<Point> levelFourCoordinates = new ArrayList<>();
-
-
-        levelFourCoordinates.add(new Point(checkX(x-1, lattice.length), checkY(y+2, lattice[0].length)));
-        levelFourCoordinates.add(new Point(checkX(x+1, lattice.length), checkY(y+2, lattice[0].length)));
-        levelFourCoordinates.add(new Point(checkX(x-2, lattice.length), checkY(y+1, lattice[0].length)));
-        levelFourCoordinates.add(new Point(checkX(x+2, lattice.length), checkY(y+1, lattice[0].length)));
-        levelFourCoordinates.add(new Point(checkX(x-2, lattice.length), checkY(y-1, lattice[0].length)));
-        levelFourCoordinates.add(new Point(checkX(x+2, lattice.length), checkY(y-1, lattice[0].length)));
-        levelFourCoordinates.add(new Point(checkX(x-1, lattice.length), checkY(y-2, lattice[0].length)));
-        levelFourCoordinates.add(new Point(checkX(x+1, lattice.length), checkY(y-2, lattice[0].length)));
-
-        result.put(4, levelFourCoordinates);
-
-
-        List<Point> levelFiveCoordinates = new ArrayList<>();
-
-        levelFiveCoordinates.add(new Point(checkX(x-2, lattice.length), checkY(y+2, lattice[0].length)));
-        levelFiveCoordinates.add(new Point(checkX(x+2, lattice.length), checkY(y+2, lattice[0].length)));
-        levelFiveCoordinates.add(new Point(checkX(x-2, lattice.length), checkY(y-2, lattice[0].length)));
-        levelFiveCoordinates.add(new Point(checkX(x+2, lattice.length), checkY(y-2, lattice[0].length)));
-
-        result.put(5, levelFiveCoordinates);
-
-        return result;
     }
 
     private int checkX(int x, int maxX) {
@@ -357,7 +296,7 @@ public class MCSimulation implements Simulation {
             int[] innerLattice = lattice[x];
 
             for (int y = 0; y < innerLattice.length; y++) {
-                Map<Integer, List<Point>> neighbors =  makeNeighborsCalculation(x,y, lattice);
+                Map<Integer, List<Point>> neighbors = this.neighborCalculation.addNeighbors(new HashMap<>(), x,y);
                 List<Point> levelOneNeighbors = neighbors.get(1);
                 for (Point p: levelOneNeighbors) {
                     int magnet = lattice[p.getX()][p.getY()];

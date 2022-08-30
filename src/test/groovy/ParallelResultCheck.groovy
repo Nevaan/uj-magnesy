@@ -6,7 +6,7 @@ import spock.lang.Specification
 class ParallelResultCheck extends Specification {
 
     def underTest = new MCSimulation()
-    static long start, end;
+    static long start, end
 
     static def TIME = 300000
     static int STEPS = 50_000
