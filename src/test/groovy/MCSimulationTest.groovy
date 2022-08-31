@@ -1,5 +1,6 @@
 import magnet.Magnet
 import main.Simulation
+import neighbor.Level1NeighborCalculation
 import point.Point
 import spock.lang.Ignore
 import spock.lang.IgnoreRest
@@ -134,10 +135,10 @@ class MCSimulationTest extends Specification {
         given:
         // 8 wartosci kierunku
         def lattice = [
-                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)],
-                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)],
-                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)],
-                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)]
+                [new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:])],
+                [new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:])],
+                [new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:])],
+                [new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:])]
         ] as Magnet[][]
         when:
         underTest.setStates(8)
@@ -151,10 +152,10 @@ class MCSimulationTest extends Specification {
         given:
         // 8 wartosci kierunku
         def lattice = [
-                [new Magnet(2), new Magnet(6), new Magnet(2), new Magnet(6)],
-                [new Magnet(6), new Magnet(2), new Magnet(6), new Magnet(2)],
-                [new Magnet(2), new Magnet(6), new Magnet(2), new Magnet(6)],
-                [new Magnet(6), new Magnet(2), new Magnet(6), new Magnet(2)]
+                [new Magnet(2, [:]), new Magnet(6, [:]), new Magnet(2, [:]), new Magnet(6, [:])],
+                [new Magnet(6, [:]), new Magnet(2, [:]), new Magnet(6, [:]), new Magnet(2, [:])],
+                [new Magnet(2, [:]), new Magnet(6, [:]), new Magnet(2, [:]), new Magnet(6, [:])],
+                [new Magnet(6, [:]), new Magnet(2, [:]), new Magnet(6, [:]), new Magnet(2, [:])]
         ] as Magnet[][]
         when:
         underTest.setStates(8)
@@ -169,10 +170,10 @@ class MCSimulationTest extends Specification {
         given:
         // 8 wartosci kierunku
         def lattice = [
-                [new Magnet(2), new Magnet(2), new Magnet(6), new Magnet(6)],
-                [new Magnet(6), new Magnet(2), new Magnet(6), new Magnet(2)],
-                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(6)],
-                [new Magnet(6), new Magnet(2), new Magnet(2), new Magnet(2)]
+                [new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(6, [:]), new Magnet(6, [:])],
+                [new Magnet(6, [:]), new Magnet(2, [:]), new Magnet(6, [:]), new Magnet(2, [:])],
+                [new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(6, [:])],
+                [new Magnet(6, [:]), new Magnet(2, [:]), new Magnet(2, [:]), new Magnet(2, [:])]
         ] as Magnet[][]
         when:
         underTest.setStates(8)
@@ -239,7 +240,7 @@ class MCSimulationTest extends Specification {
         for (int i = 0; i < lattice.length; i++) {
             for (int j = 0; j < lattice.length; j++) {
 
-                magnetArray[i][j] = new Magnet(lattice[i][j])
+                magnetArray[i][j] = new Magnet(lattice[i][j], new Level1NeighborCalculation(lattice.length, lattice[0].length).addNeighbors([:], i, j))
 
             }
         }

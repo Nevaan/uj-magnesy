@@ -25,7 +25,7 @@ public class MCSimulation implements Simulation {
     private double acceptedChanges = 0;
     private double changeAttempts = 0;
 
-    private NeighborCalculation neighborCalculation;
+
     private MagnetLattice magnetLattice;
 
     public MCSimulation() {
@@ -37,7 +37,6 @@ public class MCSimulation implements Simulation {
     public void setLattice(int[][] lattice, int states) {
         this.states = states;
         this.latticeParameters.setLattice(deepCopyLattice(lattice));
-        this.neighborCalculation = new Level1NeighborCalculation(lattice.length, lattice[0].length);
     }
 
     @Override
@@ -69,14 +68,12 @@ public class MCSimulation implements Simulation {
     public void executeMCSteps(int steps) {
 
         this.magnetLattice = new MagnetLattice(this.latticeParameters.lattice());
-        E = countTotalEnergy(this.magnetLattice.getMagnets());
 
+        E = countTotalEnergy(this.magnetLattice.getMagnets());
 
         this.latticeParameters.setTotalEnergy(E);
         this.latticeParameters.setOrderParameter(countOrderParameter(this.magnetLattice.getMagnets()));
         this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(this.magnetLattice.getMagnets()));
-
-
 
         for (int i = 0; i < steps; i++) {
             singleStep();
@@ -223,7 +220,7 @@ public class MCSimulation implements Simulation {
 
         Magnet magnet = magnetLattice[x][y];
 
-        Map<Integer, List<Point>> neighbours = this.neighborCalculation.addNeighbors(new HashMap<>(), x,y);
+        Map<Integer, List<Point>> neighbours = magnet.getNeighbors();
         List<Double> neighborParams = parameters.subList(1, parameters.size());
         ListIterator<Double> iterator = neighborParams.listIterator();
 
@@ -304,7 +301,7 @@ public class MCSimulation implements Simulation {
             Magnet[] innerLattice = lattice[x];
 
             for (int y = 0; y < innerLattice.length; y++) {
-                Map<Integer, List<Point>> neighbors = this.neighborCalculation.addNeighbors(new HashMap<>(), x,y);
+                Map<Integer, List<Point>> neighbors = innerLattice[y].getNeighbors();
                 List<Point> levelOneNeighbors = neighbors.get(1);
                 for (Point p: levelOneNeighbors) {
                     int magnet = lattice[p.getX()][p.getY()].getState();

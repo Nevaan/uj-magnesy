@@ -21,7 +21,7 @@ public class MagnetLatticeMemento {
         for (int x = 0; x < originalMagnets.length; x++) {
             for (int y = 0; y < originalMagnets[x].length; y++) {
 
-                copy[x][y] = new Magnet(originalMagnets[x][y].getState());
+                copy[x][y] = new Magnet(originalMagnets[x][y].getState(), originalMagnets[x][y].getNeighbors());
 
             }
         }
