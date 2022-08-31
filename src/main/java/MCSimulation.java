@@ -1,3 +1,5 @@
+import magnet.Magnet;
+import magnet.MagnetLattice;
 import main.Simulation;
 import neighbor.Level1NeighborCalculation;
 import neighbor.NeighborCalculation;
@@ -24,6 +26,7 @@ public class MCSimulation implements Simulation {
     private double changeAttempts = 0;
 
     private NeighborCalculation neighborCalculation;
+    private MagnetLattice magnetLattice;
 
     public MCSimulation() {
         this.latticeParameters = new LatticeParametersImpl();
@@ -65,20 +68,20 @@ public class MCSimulation implements Simulation {
     @Override
     public void executeMCSteps(int steps) {
 
-        E = countTotalEnergy(this.latticeParameters.lattice());
+        this.magnetLattice = new MagnetLattice(this.latticeParameters.lattice());
+        E = countTotalEnergy(this.magnetLattice.getMagnets());
+
 
         this.latticeParameters.setTotalEnergy(E);
-        this.latticeParameters.setOrderParameter(countOrderParameter(this.latticeParameters.lattice()));
-        this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(this.latticeParameters.lattice()));
+        this.latticeParameters.setOrderParameter(countOrderParameter(this.magnetLattice.getMagnets()));
+        this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(this.magnetLattice.getMagnets()));
+
+
 
         for (int i = 0; i < steps; i++) {
             singleStep();
         }
 
-//        System.out.println("E: " + E);
-//        double afterSim = countTotalEnergy(this.latticeParameters.lattice());
-//        System.out.println("AfterSim E: " + afterSim);
-//        System.out.println("Equal? " + (E == afterSim));
     }
 
     @Override
@@ -91,7 +94,10 @@ public class MCSimulation implements Simulation {
 
         changeAttempts += 1;
 
-        int[][] currentState = deepCopyLattice(this.latticeParameters.lattice());
+        Magnet[][] currentState = this.magnetLattice.getMagnets();
+
+        this.magnetLattice.saveState();
+
         int maxX = currentState.length;
         int maxY = currentState[0].length;
 
@@ -110,7 +116,7 @@ public class MCSimulation implements Simulation {
         }
 
         for (Point changePoint : pointsToChange) {
-            int currentValue = currentState[changePoint.getX()][changePoint.getY()];
+            int currentValue = currentState[changePoint.getX()][changePoint.getY()].getState();
             int change = 0;
             if(currentValue == 0) {
                 change = 1;
@@ -120,21 +126,23 @@ public class MCSimulation implements Simulation {
                 change = randomInt(2) == 0 ? -1 : 1;
             }
 
-            currentState[changePoint.getX()][changePoint.getY()] += change;
+            currentState[changePoint.getX()][changePoint.getY()].changeState(change);
         }
 
-        double deltaE = countTotalEnergy(currentState) - countTotalEnergy(this.latticeParameters.lattice());
-        //double deltaE = countEi(currentState, randomX, randomY) - countEi(this.latticeParameters.lattice(), randomX, randomY);
+        double deltaE = countTotalEnergy(currentState) - countTotalEnergy(this.magnetLattice.getPreviousState());
+
         double P = this.probabilityAlgorithm.getProbability(deltaE, TkB);
         double R = new Random().nextDouble();
 
         if (R < P) {
             acceptedChanges += 1;
-            this.latticeParameters.setLattice(deepCopyLattice(currentState));
+            this.latticeParameters.setLattice(this.magnetLattice.asLattice());
             this.latticeParameters.setTotalEnergy(countTotalEnergy(currentState));
             this.latticeParameters.setOrderParameter(countOrderParameter(currentState));
             this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(currentState));
             E += deltaE;
+        } else {
+            this.magnetLattice.undoChanges();
         }
 
 
@@ -187,33 +195,33 @@ public class MCSimulation implements Simulation {
         return 2 * Math.PI * angleAsInteger / states;
     }
 
-    public double countTotalEnergy(int[][] lattice) {
+    public double countTotalEnergy(Magnet[][] magnetLattice) {
 
         double Etot = 0.0;
 
-        for (int x = 0; x < lattice.length; x++) {
+        for (int x = 0; x < magnetLattice.length; x++) {
 
-            for (int y = 0; y < lattice[x].length; y++) {
-                Etot += countEi(lattice, x, y);
+            for (int y = 0; y < magnetLattice[x].length; y++) {
+                Etot += countEi(magnetLattice, x, y);
             }
         }
 
         Etot *= 0.5;
 
-        for (int x = 0; x < lattice.length; x++) {
+        for (int x = 0; x < magnetLattice.length; x++) {
 
-            for (int y = 0; y < lattice[x].length; y++) {
-                Etot -= parameters.get(0) * Math.cos(countAngle(lattice[x][y]) - this.externalFieldAngle);
+            for (int y = 0; y < magnetLattice[x].length; y++) {
+                Etot -= parameters.get(0) * Math.cos(countAngle(magnetLattice[x][y].getState()) - this.externalFieldAngle);
             }
         }
 
         return Etot;
     }
 
-    public double countEi(int[][] lattice, int x, int y) {
+    public double countEi(Magnet[][] magnetLattice, int x, int y) {
         double Ei = 0;
 
-        int magnet = lattice[x][y];
+        Magnet magnet = magnetLattice[x][y];
 
         Map<Integer, List<Point>> neighbours = this.neighborCalculation.addNeighbors(new HashMap<>(), x,y);
         List<Double> neighborParams = parameters.subList(1, parameters.size());
@@ -225,8 +233,8 @@ public class MCSimulation implements Simulation {
             List<Point> nLevelNeighbors = neighbours.get(idx + 1);
 
             for(Point p : nLevelNeighbors) {
-                int nLevelNeighbor = lattice[p.getX()][p.getY()];
-                Ei -= Cn * Math.cos(countAngle(magnet) - countAngle(nLevelNeighbor));
+                Magnet nLevelNeighbor = magnetLattice[p.getX()][p.getY()];
+                Ei -= Cn * Math.cos(countAngle(magnet.getState()) - countAngle(nLevelNeighbor.getState()));
             }
         }
 
@@ -258,7 +266,7 @@ public class MCSimulation implements Simulation {
         return y;
     }
 
-    public double countOrderParameter(int[][] lattice) {
+    public double countOrderParameter(Magnet[][] lattice) {
         int maxX = lattice.length;
         int maxY = lattice[0].length;
 
@@ -269,7 +277,7 @@ public class MCSimulation implements Simulation {
 
         for (int x = 0; x < maxX; x++) {
             for (int y = 0; y < maxY; y++) {
-                double angle = countAngle(lattice[x][y]);
+                double angle = countAngle(lattice[x][y].getState());
                 xAvg += Math.cos(angle);
                 yAvg += Math.sin(angle);
             }
@@ -282,7 +290,7 @@ public class MCSimulation implements Simulation {
         return Math.sqrt(Math.pow(xAvg, 2) + Math.pow(yAvg, 2));
     }
 
-    public double countNearestNeighbourOrder(int[][] lattice) {
+    public double countNearestNeighbourOrder(Magnet[][] lattice) {
 
         int maxX = lattice.length;
         int maxY = lattice[0].length;
@@ -293,15 +301,15 @@ public class MCSimulation implements Simulation {
         double order = 0.0;
 
         for (int x = 0; x < maxX; x++) {
-            int[] innerLattice = lattice[x];
+            Magnet[] innerLattice = lattice[x];
 
             for (int y = 0; y < innerLattice.length; y++) {
                 Map<Integer, List<Point>> neighbors = this.neighborCalculation.addNeighbors(new HashMap<>(), x,y);
                 List<Point> levelOneNeighbors = neighbors.get(1);
                 for (Point p: levelOneNeighbors) {
-                    int magnet = lattice[p.getX()][p.getY()];
+                    int magnet = lattice[p.getX()][p.getY()].getState();
 
-                    order += Math.cos(countAngle(lattice[x][y]) - countAngle(magnet));
+                    order += Math.cos(countAngle(lattice[x][y].getState()) - countAngle(magnet));
                 }
             }
         }

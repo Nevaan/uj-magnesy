@@ -1,6 +1,8 @@
+import magnet.Magnet
 import main.Simulation
 import point.Point
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 class MCSimulationTest extends Specification {
@@ -88,7 +90,7 @@ class MCSimulationTest extends Specification {
         when:
         underTest.setLattice(lattice, 8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
-        def result = underTest.countTotalEnergy(lattice)
+        def result = underTest.countTotalEnergy(toMagnetLattice(lattice))
         then:
         (result / (4 * 4)) == -2
     }
@@ -105,7 +107,7 @@ class MCSimulationTest extends Specification {
         when:
         underTest.setLattice(lattice, 8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
-        def result = underTest.countTotalEnergy(lattice)
+        def result = underTest.countTotalEnergy(toMagnetLattice(lattice))
         then:
         (result / (4 * 4)) == 2
     }
@@ -122,7 +124,7 @@ class MCSimulationTest extends Specification {
         when:
         underTest.setLattice(lattice, 2)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
-        def result = underTest.countTotalEnergy(lattice)
+        def result = underTest.countTotalEnergy(toMagnetLattice(lattice))
         then:
 //        println (result / (4 * 4))
         true
@@ -132,11 +134,11 @@ class MCSimulationTest extends Specification {
         given:
         // 8 wartosci kierunku
         def lattice = [
-                [2,2,2,2],
-                [2,2,2,2],
-                [2,2,2,2],
-                [2,2,2,2]
-        ] as int[][]
+                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)],
+                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)],
+                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)],
+                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(2)]
+        ] as Magnet[][]
         when:
         underTest.setStates(8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
@@ -149,11 +151,11 @@ class MCSimulationTest extends Specification {
         given:
         // 8 wartosci kierunku
         def lattice = [
-                [2,6,2,6],
-                [6,2,6,2],
-                [2,6,2,6],
-                [6,2,6,2]
-        ] as int[][]
+                [new Magnet(2), new Magnet(6), new Magnet(2), new Magnet(6)],
+                [new Magnet(6), new Magnet(2), new Magnet(6), new Magnet(2)],
+                [new Magnet(2), new Magnet(6), new Magnet(2), new Magnet(6)],
+                [new Magnet(6), new Magnet(2), new Magnet(6), new Magnet(2)]
+        ] as Magnet[][]
         when:
         underTest.setStates(8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
@@ -167,11 +169,11 @@ class MCSimulationTest extends Specification {
         given:
         // 8 wartosci kierunku
         def lattice = [
-                [2,2,6,6],
-                [6,2,6,2],
-                [2,2,2,6],
-                [6,2,2,2]
-        ] as int[][]
+                [new Magnet(2), new Magnet(2), new Magnet(6), new Magnet(6)],
+                [new Magnet(6), new Magnet(2), new Magnet(6), new Magnet(2)],
+                [new Magnet(2), new Magnet(2), new Magnet(2), new Magnet(6)],
+                [new Magnet(6), new Magnet(2), new Magnet(2), new Magnet(2)]
+        ] as Magnet[][]
         when:
         underTest.setStates(8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
@@ -192,7 +194,7 @@ class MCSimulationTest extends Specification {
         when:
         underTest.setLattice(lattice, 8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
-        def result = underTest.countNearestNeighbourOrder(lattice)
+        def result = underTest.countNearestNeighbourOrder(toMagnetLattice(lattice))
         then:
         result == 1.0
     }
@@ -209,7 +211,7 @@ class MCSimulationTest extends Specification {
         when:
         underTest.setLattice(lattice, 8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
-        def result = underTest.countNearestNeighbourOrder(lattice)
+        def result = underTest.countNearestNeighbourOrder(toMagnetLattice(lattice))
         then:
         result == -1.0
     }
@@ -227,10 +229,20 @@ class MCSimulationTest extends Specification {
         when:
         underTest.setLattice(lattice, 8)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
-        def result = underTest.countNearestNeighbourOrder(lattice)
+        def result = underTest.countNearestNeighbourOrder(toMagnetLattice(lattice))
         then:
         println result
     }
 
+    Magnet[][] toMagnetLattice(int[][] lattice) {
+        Magnet[][] magnetArray = new Magnet[lattice.length][lattice.length]
+        for (int i = 0; i < lattice.length; i++) {
+            for (int j = 0; j < lattice.length; j++) {
 
+                magnetArray[i][j] = new Magnet(lattice[i][j])
+
+            }
+        }
+        return magnetArray
+    }
 }
