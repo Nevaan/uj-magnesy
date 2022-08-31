@@ -70,8 +70,8 @@ public class MCSimulation implements Simulation {
         E = this.magnetLattice.getTotalEnergy();
 
         this.latticeParameters.setTotalEnergy(E);
-        this.latticeParameters.setOrderParameter(countOrderParameter(this.magnetLattice.getMagnets()));
-        this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(this.magnetLattice.getMagnets()));
+        this.latticeParameters.setOrderParameter(this.magnetLattice.getOrderParamter());
+        this.latticeParameters.setNearestNeighbourOrder(this.magnetLattice.getNearestNeighborOrder());
 
         for (int i = 0; i < steps; i++) {
             singleStep();
@@ -90,8 +90,6 @@ public class MCSimulation implements Simulation {
         changeAttempts += 1;
 
         Magnet[][] currentState = this.magnetLattice.getMagnets();
-
-
 
         int maxX = currentState.length;
         int maxY = currentState[0].length;
@@ -119,8 +117,8 @@ public class MCSimulation implements Simulation {
             acceptedChanges += 1;
             this.latticeParameters.setLattice(this.magnetLattice.asLattice());
             this.latticeParameters.setTotalEnergy(this.magnetLattice.getTotalEnergy());
-            this.latticeParameters.setOrderParameter(countOrderParameter(currentState));
-            this.latticeParameters.setNearestNeighbourOrder(countNearestNeighbourOrder(currentState));
+            this.latticeParameters.setOrderParameter(this.magnetLattice.getOrderParamter());
+            this.latticeParameters.setNearestNeighbourOrder(this.magnetLattice.getNearestNeighborOrder());
             E += deltaE;
         } else {
             this.magnetLattice.undoChanges();
@@ -170,61 +168,6 @@ public class MCSimulation implements Simulation {
         Random random = new Random();
         return random.nextInt(max);
     }
-
-    //todo: private method
-    public double countAngle(int angleAsInteger) {
-        return 2 * Math.PI * angleAsInteger / states;
-    }
-
-    public double countOrderParameter(Magnet[][] lattice) {
-        int maxX = lattice.length;
-        int maxY = lattice[0].length;
-
-        int N = maxX * maxY;
-
-        double xAvg = 0.0;
-        double yAvg = 0.0;
-
-        for (int x = 0; x < maxX; x++) {
-            for (int y = 0; y < maxY; y++) {
-                double angle = countAngle(lattice[x][y].getState());
-                xAvg += Math.cos(angle);
-                yAvg += Math.sin(angle);
-            }
-        }
-
-        xAvg = xAvg / N;
-        yAvg = yAvg / N;
-
-
-        return Math.sqrt(Math.pow(xAvg, 2) + Math.pow(yAvg, 2));
-    }
-
-    public double countNearestNeighbourOrder(Magnet[][] lattice) {
-
-        int maxX = lattice.length;
-        int maxY = lattice[0].length;
-
-        int N = maxX * maxY;
-
-        int denominator = N * 4;
-        double order = 0.0;
-
-        for (int x = 0; x < maxX; x++) {
-            Magnet[] innerLattice = lattice[x];
-
-            for (int y = 0; y < innerLattice.length; y++) {
-                Map<Integer, List<Magnet>> neighbors = innerLattice[y].getNeighbors();
-                List<Magnet> levelOneNeighbors = neighbors.get(1);
-                for (Magnet magnet: levelOneNeighbors) {
-                    order += Math.cos(countAngle(lattice[x][y].getState()) - countAngle(magnet.getState()));
-                }
-            }
-        }
-        return order / denominator;
-
-    }
-
 
     public void setExternalFieldAngle(double externalFieldAngle) {
         this.externalFieldAngle = externalFieldAngle;

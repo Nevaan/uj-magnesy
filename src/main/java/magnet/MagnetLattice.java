@@ -17,6 +17,9 @@ public class MagnetLattice {
     private MagnetLatticeMemento lastState;
     private NeighborCalculation neighborCalculation;
     private double totalEnergy;
+    private double orderParamter;
+    private double nearestNeighborOrder;
+
 
     public MagnetLattice(int[][] lattice, List<Double> parameters, double externalFieldAngle, int states) {
 
@@ -72,6 +75,14 @@ public class MagnetLattice {
         return totalEnergy;
     }
 
+    public double getOrderParamter() {
+        return orderParamter;
+    }
+
+    public double getNearestNeighborOrder() {
+        return nearestNeighborOrder;
+    }
+
     public int[][] asLattice() {
         int[][] lattice = new int[magnets.length][magnets[0].length];
 
@@ -94,7 +105,7 @@ public class MagnetLattice {
     public double applyChanges(Set<Point> pointsToChange) {
 
         Set<Magnet> magnetsToChange = pointsToChange.stream().map(point -> magnets[point.getX()][point.getY()]).collect(Collectors.toSet());
-        this.lastState = new MagnetLatticeMemento(this, magnetsToChange, this.totalEnergy);
+        this.lastState = new MagnetLatticeMemento(this, magnetsToChange, this.totalEnergy, this.orderParamter, this.nearestNeighborOrder);
 
         for (Magnet magnet : magnetsToChange) {
             int currentValue = magnet.getState();
@@ -125,26 +136,58 @@ public class MagnetLattice {
     }
 
 
-    public double countTotalEnergy() {
+    private void singleLoop() {
+        double Etot = 0.0;
+
+        int N = magnets.length * magnets[0].length;
+
+        double xAvg = 0.0;
+        double yAvg = 0.0;
+
+        int denominator = N * 4;
+        double order = 0.0;
+
+
+        for (int x = 0; x < magnets.length; x++) {
+            for (int y = 0; y < magnets[x].length; y++) {
+                Etot += singleMagnetEnergy(x,y);
+
+                double angle = countAngle(magnets[x][y].getState());
+                xAvg += Math.cos(angle);
+                yAvg += Math.sin(angle);
+
+                Map<Integer, List<Magnet>> neighbors = magnets[x][y].getNeighbors();
+                List<Magnet> levelOneNeighbors = neighbors.get(1);
+                for (Magnet magnet: levelOneNeighbors) {
+                    order += Math.cos(countAngle(magnets[x][y].getState()) - countAngle(magnet.getState()));
+                }
+            }
+        }
+
+        xAvg = xAvg / N;
+        yAvg = yAvg / N;
+
+        this.orderParamter = Math.sqrt(Math.pow(xAvg, 2) + Math.pow(yAvg, 2));
+        this.nearestNeighborOrder = order / denominator;
+    }
+
+    private double countTotalEnergy() {
 
         double Etot = 0.0;
 
         for (int x = 0; x < magnets.length; x++) {
-
             for (int y = 0; y < magnets[x].length; y++) {
-                Etot += countEi(x, y);
+                Etot += singleMagnetEnergy(x,y);
             }
         }
 
-        Etot *= 0.5;
+        return Etot;
+    }
 
-        for (int x = 0; x < magnets.length; x++) {
-
-            for (int y = 0; y < magnets[x].length; y++) {
-                Etot -= parameters.get(0) * Math.cos(countAngle(magnets[x][y].getState()) - this.externalFieldAngle);
-            }
-        }
-
+    private double singleMagnetEnergy(int x, int y) {
+        double Etot = 0.0;
+        Etot += 0.5 * countEi(x, y);
+        Etot -= parameters.get(0) * Math.cos(countAngle(magnets[x][y].getState()) - this.externalFieldAngle);
         return Etot;
     }
 
@@ -175,19 +218,25 @@ public class MagnetLattice {
 
         private MagnetLattice magnetLattice;
         private final double totalEnergy;
+        private final double orderParamter;
+        private final double nearestNeighborOrder;
 
         private Set<Magnet> magnets;
 
-        public MagnetLatticeMemento(MagnetLattice magnetLattice, Set<Magnet> magnetsToChange, double totalEnergy) {
+        public MagnetLatticeMemento(MagnetLattice magnetLattice, Set<Magnet> magnetsToChange, double totalEnergy, double orderParamter, double nearestNeighborOrder) {
             this.magnetLattice = magnetLattice;
             this.magnets = magnetsToChange;
             this.totalEnergy = totalEnergy;
+            this.orderParamter = orderParamter;
+            this.nearestNeighborOrder = nearestNeighborOrder;
         }
 
 
         public void restore() {
             this.magnets.stream().forEach(Magnet::restoreState);
             this.magnetLattice.totalEnergy = totalEnergy;
+            this.magnetLattice.orderParamter = orderParamter;
+            this.magnetLattice.nearestNeighborOrder = nearestNeighborOrder;
         }
 
     }
