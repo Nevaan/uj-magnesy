@@ -1,9 +1,9 @@
 import main.Simulation
-import spock.lang.Ignore
+import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
 
-@Ignore
+@IgnoreIf({ env["CICD"] == "true" })
 class ParallelResultCheck extends Specification {
 
     def underTest = new MCSimulation()
