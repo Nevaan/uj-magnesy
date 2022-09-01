@@ -59,7 +59,7 @@ public class MagnetLattice {
 
 
         this.magnets = magnets;
-        this.totalEnergy = countTotalEnergy();
+        singleLoop();
 
     }
 
@@ -97,7 +97,6 @@ public class MagnetLattice {
         return lattice;
     }
 
-
     public void undoChanges() {
         this.lastState.restore();
     }
@@ -121,7 +120,7 @@ public class MagnetLattice {
             magnet.changeState(change);
         }
 
-        this.totalEnergy = countTotalEnergy();
+        singleLoop();
 
         return this.totalEnergy - lastState.totalEnergy;
     }
@@ -167,21 +166,9 @@ public class MagnetLattice {
         xAvg = xAvg / N;
         yAvg = yAvg / N;
 
+        this.totalEnergy = Etot;
         this.orderParamter = Math.sqrt(Math.pow(xAvg, 2) + Math.pow(yAvg, 2));
         this.nearestNeighborOrder = order / denominator;
-    }
-
-    private double countTotalEnergy() {
-
-        double Etot = 0.0;
-
-        for (int x = 0; x < magnets.length; x++) {
-            for (int y = 0; y < magnets[x].length; y++) {
-                Etot += singleMagnetEnergy(x,y);
-            }
-        }
-
-        return Etot;
     }
 
     private double singleMagnetEnergy(int x, int y) {

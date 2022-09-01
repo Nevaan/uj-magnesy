@@ -1,4 +1,5 @@
 import main.Simulation
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
@@ -44,7 +45,7 @@ class ParallelResultCheck extends Specification {
         underTest.setTkB(T)
     }
 
-    Tuple2<Integer, Double> oneSimulation(MCSimulation sim, String tkB) {
+    Tuple4<Integer, Double, Double, Double> oneSimulation(MCSimulation sim) {
         def stepsTaken = 0
         long endTime = System.currentTimeMillis() + TIME
         do {
@@ -52,16 +53,16 @@ class ParallelResultCheck extends Specification {
             stepsTaken += 1
         } while (System.currentTimeMillis() < endTime)
 
-        return new Tuple(stepsTaken * STEPS,((sim.getState().totalEnergy()) / (DIV*DIV)))
+        return new Tuple(stepsTaken * STEPS, ((sim.getState().totalEnergy()) / (DIV*DIV)), (sim.getState().orderParameter()), (sim.getState().nearestNeighbourOrder()))
     }
 
-    def handleResults(double tkb, double expected, List<Tuple2<Integer, Double>> results) {
+    def handleResults(double tkb, double expected, List<Tuple4<Integer, Double, Double, Double>> results) {
         def executionResults = results.collect {it[1]}
 
         def averageResult = executionResults.value.sum() / REPEATS
 
         def header = "\nTkB = ${tkb} (${expected} expected)\n"
-        def resultsAsString = results.collect {it -> "\t Result: ${it[1]} (${it[0]} steps)"}.join("\n")
+        def resultsAsString = results.collect {it -> "\t Result: ${it[1]} (${it[0]} steps, ${it[2]} order parameter, ${it[3]} nearest neighbour order)"}.join("\n")
         def averageAsString = "\n\n\t Average: ${averageResult}"
 
         resultsMap[tkb] = "${header}${resultsAsString}${averageAsString}"
@@ -99,7 +100,7 @@ class ParallelResultCheck extends Specification {
         def results = []
 
         for (int i = 0; i < REPEATS; i++) {
-            results << oneSimulation(underTest, "0.0")
+            results << oneSimulation(underTest)
         }
         then:
         handleResults(0.0, -2.0, results)
@@ -137,7 +138,7 @@ class ParallelResultCheck extends Specification {
         def results = []
 
         for (int i = 0; i < REPEATS; i++) {
-            results << oneSimulation(underTest, "1.0")
+            results << oneSimulation(underTest)
         }
         then:
         handleResults(1.0, -1.4, results)
@@ -174,7 +175,7 @@ class ParallelResultCheck extends Specification {
         def results = []
 
         for (int i = 0; i < REPEATS; i++) {
-            results << oneSimulation(underTest, "1.5")
+            results << oneSimulation(underTest)
         }
         then:
         handleResults(1.5, -1.0, results)
@@ -211,7 +212,7 @@ class ParallelResultCheck extends Specification {
         def results = []
 
         for (int i = 0; i < REPEATS; i++) {
-            results << oneSimulation(underTest, "2.0")
+            results << oneSimulation(underTest)
         }
         then:
         handleResults(2.0, -0.7, results)
@@ -249,7 +250,7 @@ class ParallelResultCheck extends Specification {
         def results = []
 
         for (int i = 0; i < REPEATS; i++) {
-            results << oneSimulation(underTest, "3.0")
+            results << oneSimulation(underTest)
         }
         then:
         handleResults(3.0, -0.5, results)
@@ -286,7 +287,7 @@ class ParallelResultCheck extends Specification {
         def results = []
 
         for (int i = 0; i < REPEATS; i++) {
-            results << oneSimulation(underTest, "5.0")
+            results << oneSimulation(underTest)
         }
         then:
         handleResults(5.0,-0.38,  results)
