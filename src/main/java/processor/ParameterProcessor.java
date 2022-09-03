@@ -15,7 +15,7 @@ public class ParameterProcessor {
     private AbstractVisitor<Tuple<Double, Double>> orderParameterVisitor;
     private AbstractVisitor<Double> nearestNeighborVisitor;
 
-    public ParameterProcessor(int states, List<Double> parameters, double externalFieldAngle) {
+    private ParameterProcessor(int states, List<Double> parameters, double externalFieldAngle) {
         energyVisitor = new EnergyVisitor(states, parameters, externalFieldAngle);
         orderParameterVisitor = new OrderParameterVisitor(states);
         nearestNeighborVisitor = new NearestNeighborVisitor(states);
@@ -56,6 +56,28 @@ public class ParameterProcessor {
         nearestNeighborOrder = nearestNeighborOrder / (4 * rows * columns);
 
         return new ParameterResult(Etot, orderParameter, nearestNeighborOrder);
+    }
+
+    public static class Builder {
+        private int states;
+        private List<Double> parameters;
+        private double externalFieldAngle;
+
+        public void setStates(int states) {
+            this.states = states;
+        }
+
+        public void setParameters(List<Double> parameters) {
+            this.parameters = parameters;
+        }
+
+        public void setExternalFieldAngle(double externalFieldAngle) {
+            this.externalFieldAngle = externalFieldAngle;
+        }
+
+        public ParameterProcessor build() {
+            return new ParameterProcessor(states, parameters, externalFieldAngle);
+        }
     }
 
 }

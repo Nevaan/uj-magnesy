@@ -4,10 +4,10 @@ import main.Simulation;
 
 public class LatticeParametersImpl implements Simulation.LatticeParameters {
 
-    private int[][] lattice;
-    private double totalEnergy;
-    private double orderParameter;
-    private double nearestNeighbourOrder;
+    private final int[][] lattice;
+    private double totalEnergy = 0.0;
+    private double orderParameter = 0.0;
+    private double nearestNeighbourOrder = 0.0;
 
     @Override
     public double totalEnergy() {
@@ -29,19 +29,14 @@ public class LatticeParametersImpl implements Simulation.LatticeParameters {
         return lattice;
     }
 
-
-    public void setLattice(int[][] lattice) {
+    public LatticeParametersImpl(int[][] lattice) {
         this.lattice = lattice;
     }
-    public void setTotalEnergy(double totalEnergy) {
+
+    public LatticeParametersImpl(int[][] lattice, double totalEnergy, double orderParameter, double nearestNeighbourOrder) {
+        this.lattice = lattice;
         this.totalEnergy = totalEnergy;
-    }
-
-    public void setOrderParameter(double orderParameter) {
         this.orderParameter = orderParameter;
-    }
-
-    public void setNearestNeighbourOrder(double nearestNeighbourOrder) {
         this.nearestNeighbourOrder = nearestNeighbourOrder;
     }
 }

@@ -48,6 +48,11 @@ public class Magnet {
         this.previousState.restore();
     }
 
+    private int randomInt(int max) {
+        Random random = new Random();
+        return random.nextInt(max);
+    }
+
 
     private class MagnetMemento {
         private Magnet magnet;
@@ -63,9 +68,5 @@ public class Magnet {
         }
     }
 
-    private int randomInt(int max) {
-        Random random = new Random();
-        return random.nextInt(max);
-    }
 
 }

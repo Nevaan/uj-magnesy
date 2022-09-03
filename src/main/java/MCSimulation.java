@@ -1,7 +1,6 @@
 import magnet.Magnet;
 import magnet.MagnetLattice;
 import main.Simulation;
-import parameters.LatticeParametersImpl;
 import point.Point;
 import probability.Glauber;
 import probability.Metropolis;
@@ -12,35 +11,33 @@ import java.util.*;
 
 public class MCSimulation implements Simulation {
 
-    private LatticeParametersImpl latticeParameters;
-
     private ProbabilityAlgorithm probabilityAlgorithm;
-    private List<Double> parameters;
-    private double externalFieldAngle;
     private double TkB;
-    private int states;
+
+    private ParameterProcessor.Builder parameterProcessorBuilder;
+    private MagnetLattice.Builder magnetLatticeBuilder;
+    private MagnetLattice magnetLattice;
 
     private int numberOfMagnetsToChange = 1;
     private double acceptedChanges = 0;
     private double changeAttempts = 0;
 
-
-    private MagnetLattice magnetLattice;
-
     public MCSimulation() {
-        this.latticeParameters = new LatticeParametersImpl();
+        this.parameterProcessorBuilder = new ParameterProcessor.Builder();
+        this.magnetLatticeBuilder = new MagnetLattice.Builder();
     }
 
     @Override
     public void setLattice(int[][] lattice, int states) {
-        this.states = states;
-        this.latticeParameters.setLattice(lattice);
+        this.parameterProcessorBuilder.setStates(states);
+        this.magnetLatticeBuilder.setStates(states);
+        this.magnetLatticeBuilder.setLattice(lattice);
     }
 
     @Override
     public void setEnergyParameters(List<Double> parameters, double externaFieldAngle) {
-        this.parameters = parameters;
-        this.externalFieldAngle = externaFieldAngle;
+        this.parameterProcessorBuilder.setParameters(parameters);
+        this.parameterProcessorBuilder.setExternalFieldAngle(externaFieldAngle);
     }
 
     @Override
@@ -62,24 +59,22 @@ public class MCSimulation implements Simulation {
 
     @Override
     public void executeMCSteps(int steps) {
-        this.magnetLattice = new MagnetLattice(this.latticeParameters.lattice(), new ParameterProcessor(this.states, this.parameters, this.externalFieldAngle), this.states);
-
-        this.latticeParameters.setTotalEnergy(this.magnetLattice.getTotalEnergy());
-        this.latticeParameters.setOrderParameter(this.magnetLattice.getOrderParameter());
-        this.latticeParameters.setNearestNeighbourOrder(this.magnetLattice.getNearestNeighborOrder());
+        this.magnetLatticeBuilder.setParameterProcessor(this.parameterProcessorBuilder.build());
+        this.magnetLattice = this.magnetLatticeBuilder.build();
 
         for (int i = 0; i < steps; i++) {
             singleStep();
         }
+        this.magnetLatticeBuilder.setLattice(this.magnetLattice.getLatticeParameters().lattice());
 
     }
 
     @Override
     public LatticeParameters getState() {
-        return latticeParameters;
+        return this.magnetLattice.getLatticeParameters();
     }
 
-    public void singleStep() {
+    private void singleStep() {
 
         changeAttempts += 1;
 
@@ -109,14 +104,9 @@ public class MCSimulation implements Simulation {
 
         if (R < P) {
             acceptedChanges += 1;
-            this.latticeParameters.setLattice(this.magnetLattice.asLattice());
-            this.latticeParameters.setTotalEnergy(this.magnetLattice.getTotalEnergy());
-            this.latticeParameters.setOrderParameter(this.magnetLattice.getOrderParameter());
-            this.latticeParameters.setNearestNeighbourOrder(this.magnetLattice.getNearestNeighborOrder());
         } else {
             this.magnetLattice.undoChanges();
         }
-
 
     }
 
@@ -124,10 +114,5 @@ public class MCSimulation implements Simulation {
         Random random = new Random();
         return random.nextInt(max);
     }
-
-    public void setStates(int states) {
-        this.states = states;
-    }
-
 
 }

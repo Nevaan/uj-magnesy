@@ -1,35 +1,35 @@
 Test results:
 TkB = 0.0 (-2.0 expected)
-	 Result: -2.0 (1650000 steps, 1.0 order parameter, 1.0 nearest neighbour order)
+	 Result: -2.0 (1500000 steps, 1.0 order parameter, 1.0 nearest neighbour order)
 
 	 Average: -2.0
 
 TkB = 1.0 (-1.4 expected)
-	 Result: -1.5182257651112574 (150000 steps, 0.7614993125864392 order parameter, 0.7591128825556287 nearest neighbour order)
+	 Result: -1.4028599596096492 (350000 steps, 0.7267102434968793 order parameter, 0.7014299798048246 nearest neighbour order)
 
-	 Average: -1.5182257651112574
+	 Average: -1.4028599596096492
 
 TkB = 1.5 (-1.0 expected)
-	 Result: -1.165518208869635 (150000 steps, 0.6392504298539082 order parameter, 0.5827591044348175 nearest neighbour order)
+	 Result: -1.1208016570591244 (150000 steps, 0.6484468343026227 order parameter, 0.5604008285295622 nearest neighbour order)
 
-	 Average: -1.165518208869635
+	 Average: -1.1208016570591244
 
 TkB = 2.0 (-0.7 expected)
-	 Result: -0.8603181962296452 (150000 steps, 0.53760230678392 order parameter, 0.4301590981148226 nearest neighbour order)
+	 Result: -0.8980067510770371 (150000 steps, 0.5704634799608335 order parameter, 0.44900337553851855 nearest neighbour order)
 
-	 Average: -0.8603181962296452
+	 Average: -0.8980067510770371
 
 TkB = 3.0 (-0.5 expected)
-	 Result: -0.5438788726863997 (150000 steps, 0.412994891147451 order parameter, 0.27193943634319984 nearest neighbour order)
+	 Result: -0.5242391493894952 (150000 steps, 0.37920332372068716 order parameter, 0.2621195746947476 nearest neighbour order)
 
-	 Average: -0.5438788726863997
+	 Average: -0.5242391493894952
 
 TkB = 5.0 (-0.38 expected)
-	 Result: -0.501455258225101 (150000 steps, 0.4030501083383197 order parameter, 0.2507276291125505 nearest neighbour order)
+	 Result: -0.39067013095132885 (150000 steps, 0.3547535649397001 order parameter, 0.19533506547566443 nearest neighbour order)
 
-	 Average: -0.501455258225101
+	 Average: -0.39067013095132885
 
 
-Time in ms: 320537
-Time in s: 320.537
-Time in m: 5.3422833333
+Time in ms: 307986
+Time in s: 307.986
+Time in m: 5.1331

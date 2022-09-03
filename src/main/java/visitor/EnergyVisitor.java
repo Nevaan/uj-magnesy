@@ -25,9 +25,7 @@ public class EnergyVisitor extends AbstractVisitor<Double> {
         return Etot;
     }
 
-
-
-    public double countEi(Magnet magnet) {
+    private double countEi(Magnet magnet) {
         double Ei = 0;
 
         Map<Integer, List<Magnet>> neighbours = magnet.getNeighbors();

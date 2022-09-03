@@ -1,7 +1,9 @@
 package magnet;
 
+import main.Simulation;
 import neighbor.Level1NeighborCalculation;
 import neighbor.NeighborCalculation;
+import parameters.LatticeParametersImpl;
 import point.Point;
 import processor.ParameterProcessor;
 import processor.ParameterResult;
@@ -14,14 +16,10 @@ public class MagnetLattice {
     private Magnet[][] magnets;
     private MagnetLatticeMemento lastState;
     private NeighborCalculation neighborCalculation;
-    private double totalEnergy;
-    private double orderParameter;
-    private double nearestNeighborOrder;
-
+    private Simulation.LatticeParameters latticeParameters;
     private ParameterProcessor parameterProcessor;
 
-
-    public MagnetLattice(int[][] lattice, ParameterProcessor parameterProcessor, int states) {
+    private MagnetLattice(int[][] lattice, ParameterProcessor parameterProcessor, int states) {
 
         this.parameterProcessor = parameterProcessor;
 
@@ -57,27 +55,19 @@ public class MagnetLattice {
 
 
         this.magnets = magnets;
-        singleLoop();
+        calculateParameters();
 
+    }
+
+    public Simulation.LatticeParameters getLatticeParameters() {
+        return latticeParameters;
     }
 
     public Magnet[][] getMagnets() {
         return magnets;
     }
 
-    public double getTotalEnergy() {
-        return totalEnergy;
-    }
-
-    public double getOrderParameter() {
-        return orderParameter;
-    }
-
-    public double getNearestNeighborOrder() {
-        return nearestNeighborOrder;
-    }
-
-    public int[][] asLattice() {
+    private int[][] asLattice() {
         int[][] lattice = new int[magnets.length][magnets[0].length];
 
         for (int x = 0; x < magnets.length; x++) {
@@ -91,57 +81,70 @@ public class MagnetLattice {
         return lattice;
     }
 
-    public void undoChanges() {
-        this.lastState.restore();
-    }
-
     public double applyChanges(Set<Point> pointsToChange) {
 
         Set<Magnet> magnetsToChange = pointsToChange.stream().map(point -> magnets[point.getX()][point.getY()]).collect(Collectors.toSet());
-        this.lastState = new MagnetLatticeMemento(this, magnetsToChange, this.totalEnergy, this.orderParameter, this.nearestNeighborOrder);
+        this.lastState = new MagnetLatticeMemento(this, magnetsToChange, this.latticeParameters);
 
         for (Magnet magnet : magnetsToChange) {
             magnet.changeState();
         }
 
-        singleLoop();
+        calculateParameters();
 
-        return this.totalEnergy - lastState.totalEnergy;
+        return this.latticeParameters.totalEnergy() - lastState.latticeParameters.totalEnergy();
+    }
+
+    public void undoChanges() {
+        this.lastState.restore();
     }
 
 
 
-    private void singleLoop() {
+    private void calculateParameters() {
         ParameterResult result = parameterProcessor.process(this.magnets);
+        this.latticeParameters = new LatticeParametersImpl(asLattice(), result.getTotalEnergy(), result.getOrder(), result.getNearestNeighborOrder());
+    }
 
-        this.totalEnergy = result.getTotalEnergy();
-        this.orderParameter = result.getOrder();
-        this.nearestNeighborOrder = result.getNearestNeighborOrder();
+    public static class Builder {
+        private int[][] lattice;
+        private ParameterProcessor parameterProcessor;
+        private int states;
+
+        public void setLattice(int[][] lattice) {
+            this.lattice = lattice;
+        }
+
+        public void setParameterProcessor(ParameterProcessor parameterProcessor) {
+            this.parameterProcessor = parameterProcessor;
+        }
+
+        public void setStates(int states) {
+            this.states = states;
+        }
+
+        public MagnetLattice build() {
+            return new MagnetLattice(lattice, parameterProcessor, states);
+        }
     }
 
     private class MagnetLatticeMemento {
 
         private MagnetLattice magnetLattice;
-        private final double totalEnergy;
-        private final double orderParameter;
-        private final double nearestNeighborOrder;
+        private final Simulation.LatticeParameters latticeParameters;
 
         private Set<Magnet> magnets;
 
-        public MagnetLatticeMemento(MagnetLattice magnetLattice, Set<Magnet> magnetsToChange, double totalEnergy, double orderParameter, double nearestNeighborOrder) {
+        public MagnetLatticeMemento(MagnetLattice magnetLattice, Set<Magnet> magnetsToChange, Simulation.LatticeParameters latticeParameters) {
             this.magnetLattice = magnetLattice;
             this.magnets = magnetsToChange;
-            this.totalEnergy = totalEnergy;
-            this.orderParameter = orderParameter;
-            this.nearestNeighborOrder = nearestNeighborOrder;
+            this.latticeParameters = latticeParameters;
         }
 
 
         public void restore() {
             this.magnets.stream().forEach(Magnet::restoreState);
-            this.magnetLattice.totalEnergy = totalEnergy;
-            this.magnetLattice.orderParameter = orderParameter;
-            this.magnetLattice.nearestNeighborOrder = nearestNeighborOrder;
+            this.magnetLattice.latticeParameters = latticeParameters;
         }
 
     }
