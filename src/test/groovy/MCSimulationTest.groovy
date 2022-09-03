@@ -8,6 +8,7 @@ import spock.lang.Specification
 
 import java.util.stream.Collectors
 
+@Ignore
 class MCSimulationTest extends Specification {
 
     def underTest = new MCSimulation()

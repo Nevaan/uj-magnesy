@@ -28,7 +28,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Generate class diagram from draw.io
-        uses: Burnett01/actions-drawio@1.2
-        with:
-          src: class_diagram.xml
-          dst: class_diagram.png
+      uses: Burnett01/actions-drawio@1.2
+      with:
+        src: class_diagram.xml
+        dst: class_diagram.png
