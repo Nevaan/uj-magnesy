@@ -31,4 +31,4 @@ jobs:
       uses: Burnett01/actions-drawio@1.2
       with:
         src: class_diagram.xml
-        dst: class_diagram.png
+        dest: class_diagram.png
