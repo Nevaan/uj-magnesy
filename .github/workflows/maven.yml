@@ -27,8 +27,24 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: Generate class diagram from draw.io
-      uses: Burnett01/actions-drawio@1.2
-      with:
-        src: class_diagram.xml
-        dest: class_diagram.png
+  render_drawio:
+    runs-on: ubuntu-latest
+    name: Render .drawio files
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Render .drawio files
+        uses: docker://ghcr.io/racklet/render-drawio-action:v1
+        with: # Showcasing the default values here
+          args: '"--sub-dirs=." "--skip-dirs=.git" "--files==" "--formats=jpg" "--log-level=debug"'
+        id: render
+      - name: List the rendered files
+        run: 'ls -l ${{ steps.render.outputs.rendered-files }}'
+      - name: Commit the rendered files
+        uses: EndBug/add-and-commit@v7
+        with:
+          # This makes the GH Actions user/bot the author of the commit
+          default_author: github_actor
+          message: 'Automatically render .drawio files'
+          add: "${{ steps.render.outputs.rendered-files }}"
+        if: "${{ steps.render.outputs.rendered-files != ''}}"
