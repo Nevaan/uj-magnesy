@@ -36,7 +36,7 @@ jobs:
       - name: Render .drawio files
         uses: docker://ghcr.io/racklet/render-drawio-action:v1
         with: # Showcasing the default values here
-          args: '"--sub-dirs=." "--skip-dirs=.git" "--files==" "--formats=jpg" "--log-level=debug"'
+          args: '"--sub-dirs=." "--skip-dirs=.git" "--files==" "--formats=svg" "--log-level=debug"'
         id: render
       - name: List the rendered files
         run: 'ls -l ${{ steps.render.outputs.rendered-files }}'
