@@ -4,7 +4,6 @@ import util.RandomGenerator;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class Magnet {
 
