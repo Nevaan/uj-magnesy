@@ -5,14 +5,14 @@ import point.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Level2NeighborCalculation  extends NeighborCalculation {
+public class Level2NeighbourCalculation extends NeighbourCalculation {
 
-    public Level2NeighborCalculation(int maxX, int maxY) {
+    protected Level2NeighbourCalculation(int maxX, int maxY) {
         super(maxX, maxY, 2);
     }
 
     @Override
-    List<Point> computeNeighbors(int x, int y) {
+    protected List<Point> computeNeighbours(int x, int y) {
 
         List<Point> levelTwoCoordinates = new ArrayList<>();
 
@@ -26,7 +26,7 @@ public class Level2NeighborCalculation  extends NeighborCalculation {
     }
 
     @Override
-    protected NeighborCalculation getNextHandler() {
-        return new Level3NeighborCalculation(this.maxX, this.maxY);
+    protected NeighbourCalculation getNextHandler() {
+        return new Level3NeighbourCalculation(this.maxX, this.maxY);
     }
 }

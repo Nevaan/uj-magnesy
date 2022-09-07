@@ -1,5 +1,7 @@
 package magnet;
 
+import util.RandomGenerator;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -8,7 +10,7 @@ public class Magnet {
 
     private int state;
     private int states;
-    private Map<Integer, List<Magnet>> neighbors;
+    private Map<Integer, List<Magnet>> neighbours;
     private MagnetMemento previousState;
 
     public Magnet(int state, int states) {
@@ -17,28 +19,28 @@ public class Magnet {
         previousState = new MagnetMemento(this, state);
     }
 
-    public void setNeighbors(Map<Integer, List<Magnet>> neighbors) {
-        this.neighbors = neighbors;
+    public void setNeighbours(Map<Integer, List<Magnet>> neighbours) {
+        this.neighbours = neighbours;
     }
 
     public int getState() {
         return state;
     }
 
-    public Map<Integer, List<Magnet>> getNeighbors() {
-        return neighbors;
+    public Map<Integer, List<Magnet>> getNeighbours() {
+        return neighbours;
     }
 
     public void changeState() {
         previousState = new MagnetMemento(this, state);
 
         int change = 0;
-        if(state == 0) {
+        if (state == 0) {
             change = 1;
         } else if (state == states - 1) {
             change = -1;
         } else {
-            change = randomInt(2) == 0 ? -1 : 1;
+            change = RandomGenerator.getInt(2) == 0 ? -1 : 1;
         }
 
         this.state += change;
@@ -48,22 +50,16 @@ public class Magnet {
         this.previousState.restore();
     }
 
-    private int randomInt(int max) {
-        Random random = new Random();
-        return random.nextInt(max);
-    }
-
-
     private class MagnetMemento {
-        private Magnet magnet;
-        private int state;
+        private final Magnet magnet;
+        private final int state;
 
-        public MagnetMemento(Magnet magnet, int state) {
+        private MagnetMemento(Magnet magnet, int state) {
             this.magnet = magnet;
             this.state = state;
         }
 
-        public void restore() {
+        private void restore() {
             this.magnet.state = state;
         }
     }

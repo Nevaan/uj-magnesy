@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class EnergyVisitor extends AbstractVisitor<Double> {
 
-    private List<Double> parameters;
-    private double externalFieldAngle;
+    private final List<Double> parameters;
+    private final double externalFieldAngle;
 
     public EnergyVisitor(int states, List<Double> parameters, double externalFieldAngle) {
         super(states);
@@ -19,30 +19,30 @@ public class EnergyVisitor extends AbstractVisitor<Double> {
 
     @Override
     public Double visit(Magnet magnet) {
-        double Etot = 0.0;
-        Etot += 0.5 * countEi(magnet);
-        Etot -= parameters.get(0) * Math.cos(countAngle(magnet.getState()) - this.externalFieldAngle);
-        return Etot;
+        double totalMagnetEnergy = 0.0;
+        totalMagnetEnergy += 0.5 * countInternalMagnetEnergy(magnet);
+        totalMagnetEnergy -= parameters.get(0) * Math.cos(countAngle(magnet.getState()) - this.externalFieldAngle);
+        return totalMagnetEnergy;
     }
 
-    private double countEi(Magnet magnet) {
-        double Ei = 0;
+    private double countInternalMagnetEnergy(Magnet magnet) {
+        double internalMagnetEnergy = 0;
 
-        Map<Integer, List<Magnet>> neighbours = magnet.getNeighbors();
-        List<Double> neighborParams = parameters.subList(1, parameters.size());
-        ListIterator<Double> iterator = neighborParams.listIterator();
+        Map<Integer, List<Magnet>> neighbours = magnet.getNeighbours();
+        List<Double> neighbourParams = parameters.subList(1, parameters.size());
+        ListIterator<Double> iterator = neighbourParams.listIterator();
 
         while (iterator.hasNext()) {
-            int idx = iterator.nextIndex();
-            Double Cn = iterator.next();
-            List<Magnet> nLevelNeighbors = neighbours.get(idx + 1);
+            int parameterIndex = iterator.nextIndex();
+            Double neighbourParameter = iterator.next();
+            List<Magnet> nLevelNeighbours = neighbours.get(parameterIndex + 1);
 
-            for(Magnet neighbor : nLevelNeighbors) {
-                Ei -= Cn * Math.cos(countAngle(magnet.getState()) - countAngle(neighbor.getState()));
+            for(Magnet neighbour : nLevelNeighbours) {
+                internalMagnetEnergy -= neighbourParameter * Math.cos(countAngle(magnet.getState()) - countAngle(neighbour.getState()));
             }
         }
 
-        return Ei;
+        return internalMagnetEnergy;
     }
 
 }

@@ -1,16 +1,16 @@
-import neighbor.Level1NeighborCalculation
+import neighbor.Level1NeighbourCalculation
 import point.Point
 import spock.lang.Specification
 
-class NeighborCalculationTest extends Specification {
+class NeighbourCalculationTest extends Specification {
 
-    def underTest = new Level1NeighborCalculation(5, 5)
+    def underTest = new Level1NeighbourCalculation(5, 5)
 
     def "should calculate neighbors properly(center point)"() {
         given:
         def result = [:]
         when:
-        underTest.addNeighbors(result, 2, 2)
+        underTest.addNeighbours(result, 2, 2)
         then:
         result[1] == [p(2,1), p(2,3), p(3,2), p(1,2)]
         result[2] == [p(1,3), p(3,3), p(1,1), p(3,1)]
@@ -23,7 +23,7 @@ class NeighborCalculationTest extends Specification {
         given:
         def result = [:]
         when:
-        underTest.addNeighbors(result, 0, 0)
+        underTest.addNeighbours(result, 0, 0)
         then:
         result[1] == [p(0,4), p(0,1), p(1,0), p(4,0)]
         result[2] == [p(4,1), p(1,1), p(4,4), p(1,4)]
@@ -36,7 +36,7 @@ class NeighborCalculationTest extends Specification {
         given:
         def result = [:]
         when:
-        underTest.addNeighbors(result,4,4)
+        underTest.addNeighbours(result,4,4)
 
         then:
         result[1] == [p(4,3), p(4,0), p(0,4), p(3,4)]

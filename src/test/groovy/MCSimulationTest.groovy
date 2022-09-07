@@ -1,9 +1,8 @@
 import magnet.Magnet
 import main.Simulation
-import neighbor.Level1NeighborCalculation
+import neighbor.Level1NeighbourCalculation
 import point.Point
 import spock.lang.Ignore
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 import java.util.stream.Collectors
@@ -53,7 +52,7 @@ class MCSimulationTest extends Specification {
         underTest.setLattice(lattice, 4)
         underTest.setEnergyParameters([1.0 as Double, 0.0 as Double, 0.0 as Double], 0.0)
         underTest.setProbabilityFormula(Simulation.ProbabilityFormula.GLAUBER)
-        underTest.setTkB(0.0000000001)
+        underTest.setTemperatureBoltzmannConstant(0.0000000001)
         underTest.executeMCSteps(1)
         then:
         println ((underTest.getState().totalEnergy()) / (32*32))
@@ -244,14 +243,14 @@ class MCSimulationTest extends Specification {
     Magnet[][] toMagnetLattice(int[][] lattice) {
         Magnet[][] magnetArray = new Magnet[lattice.length][lattice.length]
 
-        def calc = new Level1NeighborCalculation(lattice.length, lattice[0].length);
+        def calc = new Level1NeighbourCalculation(lattice.length, lattice[0].length);
 
         for (int i = 0; i < lattice.length; i++) {
             for (int j = 0; j < lattice.length; j++) {
 
                 Magnet magnet = new Magnet(lattice[i][j])
                 magnetArray[i][j] = magnet
-                //magnet.setNeighbors(calc.addNeighbors([:], i, j))
+                //magnet.setNeighbours(calc.addNeighbours([:], i, j))
 
             }
         }
@@ -261,7 +260,7 @@ class MCSimulationTest extends Specification {
 
                 Magnet magnet =  magnetArray[i][j]
 
-                Map<Integer, List<Point>>  pointNeighbors = calc.addNeighbors([:], i, j)
+                Map<Integer, List<Point>>  pointNeighbors = calc.addNeighbours([:], i, j)
 
                 Map<Integer, List<Magnet>> neighborsAsMagnets =  pointNeighbors.entrySet().stream()
                         .collect(
@@ -271,7 +270,7 @@ class MCSimulationTest extends Specification {
                                 )
                         );
 
-                magnet.setNeighbors(neighborsAsMagnets)
+                magnet.setNeighbours(neighborsAsMagnets)
 
             }
         }

@@ -12,6 +12,6 @@ public class OrderParameterVisitor extends AbstractVisitor<Tuple<Double, Double>
     @Override
     public Tuple<Double, Double> visit(Magnet magnet) {
         double angle = countAngle(magnet.getState());
-        return new Tuple(Math.cos(angle), Math.sin(angle));
+        return new Tuple<>(Math.cos(angle), Math.sin(angle));
     }
 }

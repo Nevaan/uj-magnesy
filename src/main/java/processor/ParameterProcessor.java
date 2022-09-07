@@ -7,13 +7,18 @@ import visitor.EnergyVisitor;
 import visitor.NearestNeighborVisitor;
 import visitor.OrderParameterVisitor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class ParameterProcessor {
 
-    private AbstractVisitor<Double> energyVisitor;
-    private AbstractVisitor<Tuple<Double, Double>> orderParameterVisitor;
-    private AbstractVisitor<Double> nearestNeighborVisitor;
+    private final AbstractVisitor<Double> energyVisitor;
+    private final AbstractVisitor<Tuple<Double, Double>> orderParameterVisitor;
+    private final AbstractVisitor<Double> nearestNeighborVisitor;
+
+
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private ParameterProcessor(int states, List<Double> parameters, double externalFieldAngle) {
         energyVisitor = new EnergyVisitor(states, parameters, externalFieldAngle);
@@ -22,31 +27,61 @@ public class ParameterProcessor {
     }
 
     public ParameterResult process(Magnet[][] magnets) {
-
         int rows = magnets.length;
         int columns = magnets[0].length;
 
-        double Etot = 0.0;
+        double totalEnergy = 0.0;
 
         double nearestNeighborOrder = 0.0;
 
         double xAvg = 0.0;
         double yAvg = 0.0;
 
+
+        List<Future<Triplet>> futures = new ArrayList<>();
+
         for (int x = 0; x < rows; x++) {
-            for (int y = 0; y < columns; y++) {
 
-                Magnet magnet = magnets[x][y];
+            int xx = x;
+            Future<Triplet> future = executorService.submit(() -> {
 
-                Etot += energyVisitor.visit(magnet);
+                double totalEnergyThread = 0.0;
+                double xAvgThread = 0.0;
+                double yAvgThread = 0.0;
+                double nearestNeighborOrderThread = 0.0;
 
-                Tuple<Double, Double> orderPartialResult = orderParameterVisitor.visit(magnet);
-                xAvg += orderPartialResult.getLeft();
-                yAvg += orderPartialResult.getRight();
+                for (int y = 0; y < columns; y++) {
+                    Magnet magnet = magnets[xx][y];
 
-                nearestNeighborOrder += nearestNeighborVisitor.visit(magnet);
+                    totalEnergyThread += energyVisitor.visit(magnet);
 
+                    Tuple<Double, Double> orderPartialResult = orderParameterVisitor.visit(magnet);
+                    xAvgThread += orderPartialResult.getLeft();
+                    yAvgThread += orderPartialResult.getRight();
+
+                    nearestNeighborOrderThread += nearestNeighborVisitor.visit(magnet);
+
+                }
+                return new Triplet(totalEnergyThread, new Tuple<>(xAvgThread, yAvgThread), nearestNeighborOrderThread);
+            });
+
+            futures.add(future);
+
+
+
+        }
+
+        for (Future<Triplet> tripletFuture: futures) {
+            Triplet triplet;
+            try {
+                triplet =  tripletFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException("Concurrency related exception", e);
             }
+            totalEnergy += triplet.getEnergy();
+            xAvg += triplet.orderTuple.getLeft();
+            yAvg += triplet.orderTuple.getRight();
+            nearestNeighborOrder += triplet.getNeighbourOrder();
         }
 
         xAvg = xAvg / (rows * columns);
@@ -55,7 +90,7 @@ public class ParameterProcessor {
         double orderParameter = Math.sqrt(Math.pow(xAvg, 2) + Math.pow(yAvg, 2));
         nearestNeighborOrder = nearestNeighborOrder / (4 * rows * columns);
 
-        return new ParameterResult(Etot, orderParameter, nearestNeighborOrder);
+        return new ParameterResult(totalEnergy, orderParameter, nearestNeighborOrder);
     }
 
     public static class Builder {
@@ -77,6 +112,30 @@ public class ParameterProcessor {
 
         public ParameterProcessor build() {
             return new ParameterProcessor(states, parameters, externalFieldAngle);
+        }
+    }
+
+    private static class Triplet {
+        private final double energy;
+        private final Tuple<Double, Double> orderTuple;
+        private final double neighbourOrder;
+
+        public Triplet(double energy, Tuple<Double, Double> orderTuple, double neighbourOrder) {
+            this.energy = energy;
+            this.orderTuple = orderTuple;
+            this.neighbourOrder = neighbourOrder;
+        }
+
+        public double getEnergy() {
+            return energy;
+        }
+
+        public Tuple<Double, Double> getOrderTuple() {
+            return orderTuple;
+        }
+
+        public double getNeighbourOrder() {
+            return neighbourOrder;
         }
     }
 

@@ -1,35 +1,35 @@
 Test results:
-TkB = 0.0 (-2.0 expected)
-	 Result: -2.0 (1500000 steps, 1.0 order parameter, 1.0 nearest neighbour order)
+temperatureBoltzmannConstant = 0.0 (-2.0 expected)
+	 Result: -2.0 (550000 steps, 1.0 order parameter, 1.0 nearest neighbour order)
 
 	 Average: -2.0
 
-TkB = 1.0 (-1.4 expected)
-	 Result: -1.4028599596096492 (350000 steps, 0.7267102434968793 order parameter, 0.7014299798048246 nearest neighbour order)
+temperatureBoltzmannConstant = 1.0 (-1.4 expected)
+	 Result: -1.5220364625789295 (300000 steps, 0.8013238883514322 order parameter, 0.7610182312894648 nearest neighbour order)
 
-	 Average: -1.4028599596096492
+	 Average: -1.5220364625789295
 
-TkB = 1.5 (-1.0 expected)
-	 Result: -1.1208016570591244 (150000 steps, 0.6484468343026227 order parameter, 0.5604008285295622 nearest neighbour order)
+temperatureBoltzmannConstant = 1.5 (-1.0 expected)
+	 Result: -1.0913314432073338 (300000 steps, 0.6237302294826051 order parameter, 0.5456657216036669 nearest neighbour order)
 
-	 Average: -1.1208016570591244
+	 Average: -1.0913314432073338
 
-TkB = 2.0 (-0.7 expected)
-	 Result: -0.8980067510770371 (150000 steps, 0.5704634799608335 order parameter, 0.44900337553851855 nearest neighbour order)
+temperatureBoltzmannConstant = 2.0 (-0.7 expected)
+	 Result: -0.7872685098435092 (300000 steps, 0.5020459578753941 order parameter, 0.3936342549217546 nearest neighbour order)
 
-	 Average: -0.8980067510770371
+	 Average: -0.7872685098435092
 
-TkB = 3.0 (-0.5 expected)
-	 Result: -0.5242391493894952 (150000 steps, 0.37920332372068716 order parameter, 0.2621195746947476 nearest neighbour order)
+temperatureBoltzmannConstant = 3.0 (-0.5 expected)
+	 Result: -0.5139858222081378 (350000 steps, 0.45130793272729586 order parameter, 0.2569929111040689 nearest neighbour order)
 
-	 Average: -0.5242391493894952
+	 Average: -0.5139858222081378
 
-TkB = 5.0 (-0.38 expected)
-	 Result: -0.39067013095132885 (150000 steps, 0.3547535649397001 order parameter, 0.19533506547566443 nearest neighbour order)
+temperatureBoltzmannConstant = 5.0 (-0.38 expected)
+	 Result: -0.34951109724544693 (300000 steps, 0.2559847750981495 order parameter, 0.17475554862272347 nearest neighbour order)
 
-	 Average: -0.39067013095132885
+	 Average: -0.34951109724544693
 
 
-Time in ms: 307986
-Time in s: 307.986
-Time in m: 5.1331
+Time in ms: 334076
+Time in s: 334.076
+Time in m: 5.5679333333

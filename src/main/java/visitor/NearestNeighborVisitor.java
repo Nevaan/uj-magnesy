@@ -13,12 +13,12 @@ public class NearestNeighborVisitor extends AbstractVisitor<Double> {
 
     @Override
     public Double visit(Magnet magnet) {
-        double order = 0.0;
-        Map<Integer, List<Magnet>> neighbors = magnet.getNeighbors();
-        List<Magnet> levelOneNeighbors = neighbors.get(1);
-        for (Magnet neighborMagnet: levelOneNeighbors) {
-            order += Math.cos(countAngle(magnet.getState()) - countAngle(neighborMagnet.getState()));
+        double nearestNeighbourOrder = 0.0;
+        Map<Integer, List<Magnet>> neighbours = magnet.getNeighbours();
+        List<Magnet> levelOneNeighbours = neighbours.get(1);
+        for (Magnet neighbourMagnet: levelOneNeighbours) {
+            nearestNeighbourOrder += Math.cos(countAngle(magnet.getState()) - countAngle(neighbourMagnet.getState()));
         }
-        return order;
+        return nearestNeighbourOrder;
     }
 }

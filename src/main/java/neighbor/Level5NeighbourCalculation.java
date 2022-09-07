@@ -5,14 +5,14 @@ import point.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Level5NeighborCalculation extends NeighborCalculation {
+public class Level5NeighbourCalculation extends NeighbourCalculation {
 
-    public Level5NeighborCalculation(int maxX, int maxY) {
+    protected Level5NeighbourCalculation(int maxX, int maxY) {
         super(maxX, maxY, 5);
     }
 
     @Override
-    List<Point> computeNeighbors(int x, int y) {
+    protected List<Point> computeNeighbours(int x, int y) {
 
         List<Point> levelFiveCoordinates = new ArrayList<>();
 

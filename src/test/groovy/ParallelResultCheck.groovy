@@ -1,5 +1,4 @@
 import main.Simulation
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Specification
@@ -42,7 +41,7 @@ class ParallelResultCheck extends Specification {
         underTest.setLattice(lattice, 500)
         underTest.setEnergyParameters([0.0 as Double, 1.0 as Double], 0.0)
         underTest.setProbabilityFormula(Simulation.ProbabilityFormula.GLAUBER)
-        underTest.setTkB(T)
+        underTest.setTemperatureBoltzmannConstant(T)
     }
 
     Tuple4<Integer, Double, Double, Double> oneSimulation(MCSimulation sim) {
@@ -61,7 +60,7 @@ class ParallelResultCheck extends Specification {
 
         def averageResult = executionResults.value.sum() / REPEATS
 
-        def header = "\nTkB = ${tkb} (${expected} expected)\n"
+        def header = "\ntemperatureBoltzmannConstant = ${tkb} (${expected} expected)\n"
         def resultsAsString = results.collect {it -> "\t Result: ${it[1]} (${it[0]} steps, ${it[2]} order parameter, ${it[3]} nearest neighbour order)"}.join("\n")
         def averageAsString = "\n\n\t Average: ${averageResult}"
 

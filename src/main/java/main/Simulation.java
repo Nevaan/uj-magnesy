@@ -79,7 +79,7 @@ public interface Simulation {
 	 * 
 	 * @param TkB temperatura w postaci iloczynu T i staĹej Boltzmanna.
 	 */
-	public void setTkB(double TkB);
+	public void setTemperatureBoltzmannConstant(double TkB);
 
 	/**
 	 * Zlecenie wykonania okreĹlonej liczby krokĂłw MC. Stan poczÄtkowy sieci

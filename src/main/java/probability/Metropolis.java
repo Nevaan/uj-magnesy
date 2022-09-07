@@ -2,9 +2,9 @@ package probability;
 
 public class Metropolis implements ProbabilityAlgorithm {
     @Override
-    public double getProbability(double deltaE, double T) {
-        if (deltaE > 0) {
-            return Math.exp( (-deltaE / T) );
+    public double getProbability(double energyDelta, double temperature) {
+        if (energyDelta > 0) {
+            return Math.exp( (-energyDelta / temperature) );
         } else {
             return 1;
         }

@@ -1,4 +1,3 @@
-import magnet.Magnet;
 import magnet.MagnetLattice;
 import main.Simulation;
 import point.Point;
@@ -6,16 +5,18 @@ import probability.Glauber;
 import probability.Metropolis;
 import probability.ProbabilityAlgorithm;
 import processor.ParameterProcessor;
+import util.RandomGenerator;
+import util.Tuple;
 
 import java.util.*;
 
 public class MCSimulation implements Simulation {
 
     private ProbabilityAlgorithm probabilityAlgorithm;
-    private double TkB;
+    private double temperatureBoltzmannConstant;
 
-    private ParameterProcessor.Builder parameterProcessorBuilder;
-    private MagnetLattice.Builder magnetLatticeBuilder;
+    private final ParameterProcessor.Builder parameterProcessorBuilder;
+    private final MagnetLattice.Builder magnetLatticeBuilder;
     private MagnetLattice magnetLattice;
 
     private int numberOfMagnetsToChange = 1;
@@ -35,9 +36,9 @@ public class MCSimulation implements Simulation {
     }
 
     @Override
-    public void setEnergyParameters(List<Double> parameters, double externaFieldAngle) {
+    public void setEnergyParameters(List<Double> parameters, double externalFieldAngle) {
         this.parameterProcessorBuilder.setParameters(parameters);
-        this.parameterProcessorBuilder.setExternalFieldAngle(externaFieldAngle);
+        this.parameterProcessorBuilder.setExternalFieldAngle(externalFieldAngle);
     }
 
     @Override
@@ -53,8 +54,8 @@ public class MCSimulation implements Simulation {
     }
 
     @Override
-    public void setTkB(double TkB) {
-        this.TkB  = TkB;
+    public void setTemperatureBoltzmannConstant(double temperatureBoltzmannConstant) {
+        this.temperatureBoltzmannConstant = temperatureBoltzmannConstant;
     }
 
     @Override
@@ -78,10 +79,10 @@ public class MCSimulation implements Simulation {
 
         changeAttempts += 1;
 
-        Magnet[][] currentState = this.magnetLattice.getMagnets();
+        Tuple<Integer, Integer> magnetLatticeShape = this.magnetLattice.getShape();
 
-        int maxX = currentState.length;
-        int maxY = currentState[0].length;
+        int maxX = magnetLatticeShape.getLeft();
+        int maxY = magnetLatticeShape.getRight();
 
         if ((acceptedChanges / changeAttempts) > 0.5 && numberOfMagnetsToChange < (maxX * maxY)) {
             numberOfMagnetsToChange++;
@@ -92,27 +93,20 @@ public class MCSimulation implements Simulation {
         Set<Point> pointsToChange = new HashSet<>();
 
         while (pointsToChange.size() != numberOfMagnetsToChange) {
-            int randomX = randomInt(maxX);
-            int randomY = randomInt(maxY);
+            int randomX = RandomGenerator.getInt(maxX);
+            int randomY = RandomGenerator.getInt(maxY);
             pointsToChange.add(new Point(randomX, randomY));
         }
 
         double deltaE = this.magnetLattice.applyChanges(pointsToChange);
+        double acceptProbability = this.probabilityAlgorithm.getProbability(deltaE, temperatureBoltzmannConstant);
 
-        double P = this.probabilityAlgorithm.getProbability(deltaE, TkB);
-        double R = new Random().nextDouble();
-
-        if (R < P) {
+        if (RandomGenerator.getDouble() < acceptProbability) {
             acceptedChanges += 1;
         } else {
             this.magnetLattice.undoChanges();
         }
 
-    }
-
-    private int randomInt(int max) {
-        Random random = new Random();
-        return random.nextInt(max);
     }
 
 }

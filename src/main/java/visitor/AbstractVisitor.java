@@ -4,9 +4,9 @@ import magnet.Magnet;
 
 public abstract class AbstractVisitor<T> {
 
-    private int states;
+    private final int states;
 
-    public AbstractVisitor(int states) {
+    protected AbstractVisitor(int states) {
         this.states = states;
     }
 
