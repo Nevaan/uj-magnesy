@@ -10,8 +10,6 @@ import util.Tuple;
 
 import java.util.*;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class MCSimulation implements Simulation {
 
