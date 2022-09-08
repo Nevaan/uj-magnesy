@@ -1,35 +1,35 @@
 Test results:
 temperatureBoltzmannConstant = 0.0 (-2.0 expected)
-	 Result: -2.0 (550000 steps, 1.0 order parameter, 1.0 nearest neighbour order)
+	 Result: -2.0 (1450000 steps, 1.0 order parameter, 1.0 nearest neighbour order)
 
 	 Average: -2.0
 
 temperatureBoltzmannConstant = 1.0 (-1.4 expected)
-	 Result: -1.5220364625789295 (300000 steps, 0.8013238883514322 order parameter, 0.7610182312894648 nearest neighbour order)
+	 Result: -1.5153625958019248 (150000 steps, 0.8091736425176204 order parameter, 0.7576812979009624 nearest neighbour order)
 
-	 Average: -1.5220364625789295
+	 Average: -1.5153625958019248
 
 temperatureBoltzmannConstant = 1.5 (-1.0 expected)
-	 Result: -1.0913314432073338 (300000 steps, 0.6237302294826051 order parameter, 0.5456657216036669 nearest neighbour order)
+	 Result: -1.058516093112236 (150000 steps, 0.647828557075073 order parameter, 0.529258046556118 nearest neighbour order)
 
-	 Average: -1.0913314432073338
+	 Average: -1.058516093112236
 
 temperatureBoltzmannConstant = 2.0 (-0.7 expected)
-	 Result: -0.7872685098435092 (300000 steps, 0.5020459578753941 order parameter, 0.3936342549217546 nearest neighbour order)
+	 Result: -0.7049117384028046 (400000 steps, 0.42134195313597944 order parameter, 0.3524558692014023 nearest neighbour order)
 
-	 Average: -0.7872685098435092
+	 Average: -0.7049117384028046
 
 temperatureBoltzmannConstant = 3.0 (-0.5 expected)
-	 Result: -0.5139858222081378 (350000 steps, 0.45130793272729586 order parameter, 0.2569929111040689 nearest neighbour order)
+	 Result: -0.6839775976339615 (150000 steps, 0.4469566708223705 order parameter, 0.34198879881698074 nearest neighbour order)
 
-	 Average: -0.5139858222081378
+	 Average: -0.6839775976339615
 
 temperatureBoltzmannConstant = 5.0 (-0.38 expected)
-	 Result: -0.34951109724544693 (300000 steps, 0.2559847750981495 order parameter, 0.17475554862272347 nearest neighbour order)
+	 Result: -0.2828753923726524 (150000 steps, 0.3408113225849224 order parameter, 0.1414376961863262 nearest neighbour order)
 
-	 Average: -0.34951109724544693
+	 Average: -0.2828753923726524
 
 
-Time in ms: 334076
-Time in s: 334.076
-Time in m: 5.5679333333
+Time in ms: 343800
+Time in s: 343.8
+Time in m: 5.73

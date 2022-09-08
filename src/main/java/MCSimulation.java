@@ -9,6 +9,9 @@ import util.RandomGenerator;
 import util.Tuple;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MCSimulation implements Simulation {
 
@@ -24,7 +27,7 @@ public class MCSimulation implements Simulation {
     private double changeAttempts = 0;
 
     public MCSimulation() {
-        this.parameterProcessorBuilder = new ParameterProcessor.Builder();
+        this.parameterProcessorBuilder = new ParameterProcessor.Builder(Executors.newCachedThreadPool());
         this.magnetLatticeBuilder = new MagnetLattice.Builder();
     }
 
@@ -54,8 +57,8 @@ public class MCSimulation implements Simulation {
     }
 
     @Override
-    public void setTemperatureBoltzmannConstant(double temperatureBoltzmannConstant) {
-        this.temperatureBoltzmannConstant = temperatureBoltzmannConstant;
+    public void setTkB(double TkB) {
+        this.temperatureBoltzmannConstant = TkB;
     }
 
     @Override
@@ -84,9 +87,12 @@ public class MCSimulation implements Simulation {
         int maxX = magnetLatticeShape.getLeft();
         int maxY = magnetLatticeShape.getRight();
 
-        if ((acceptedChanges / changeAttempts) > 0.5 && numberOfMagnetsToChange < (maxX * maxY)) {
+        double ratio = (acceptedChanges / changeAttempts);
+
+
+        if (ratio > 0.5 && numberOfMagnetsToChange < (maxX * maxY)) {
             numberOfMagnetsToChange++;
-        } else if ((acceptedChanges / changeAttempts) < 0.4 && numberOfMagnetsToChange > 1) {
+        } else if (ratio < 0.4 && numberOfMagnetsToChange > 1) {
             numberOfMagnetsToChange--;
         }
 
@@ -107,6 +113,14 @@ public class MCSimulation implements Simulation {
             this.magnetLattice.undoChanges();
         }
 
+    }
+
+    public double acceptRatio() {
+        return (acceptedChanges / changeAttempts);
+    }
+
+    public int magnetsChange() {
+        return numberOfMagnetsToChange;
     }
 
 }

@@ -18,12 +18,13 @@ public class ParameterProcessor {
     private final AbstractVisitor<Double> nearestNeighborVisitor;
 
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService;
 
-    private ParameterProcessor(int states, List<Double> parameters, double externalFieldAngle) {
+    private ParameterProcessor(int states, List<Double> parameters, double externalFieldAngle, ExecutorService executorService) {
         energyVisitor = new EnergyVisitor(states, parameters, externalFieldAngle);
         orderParameterVisitor = new OrderParameterVisitor(states);
         nearestNeighborVisitor = new NearestNeighborVisitor(states);
+        this.executorService = executorService;
     }
 
     public ParameterResult process(Magnet[][] magnets) {
@@ -97,6 +98,11 @@ public class ParameterProcessor {
         private int states;
         private List<Double> parameters;
         private double externalFieldAngle;
+        private final ExecutorService executorSevice;
+
+        public Builder(ExecutorService executorSevice) {
+            this.executorSevice = executorSevice;
+        }
 
         public void setStates(int states) {
             this.states = states;
@@ -111,7 +117,7 @@ public class ParameterProcessor {
         }
 
         public ParameterProcessor build() {
-            return new ParameterProcessor(states, parameters, externalFieldAngle);
+            return new ParameterProcessor(states, parameters, externalFieldAngle, executorSevice);
         }
     }
 
